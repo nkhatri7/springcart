@@ -34,3 +34,6 @@ build/
 
 ### General ###
 .DS_Store
+
+### Secrets ###
+secrets.properties
