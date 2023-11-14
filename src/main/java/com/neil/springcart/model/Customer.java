@@ -12,7 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
-@Entity(name = "customer")
+@Entity(name = "Customer")
 @Table(name = "customer")
 @Getter
 @Setter
@@ -20,7 +20,15 @@ import java.util.List;
 @AllArgsConstructor
 public class Customer implements UserDetails {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @SequenceGenerator(
+            name = "customer_sequence",
+            sequenceName = "customer_sequence",
+            allocationSize = 1
+    )
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "customer_sequence"
+    )
     private Long id;
     @Column(nullable = false)
     private String name;

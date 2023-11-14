@@ -1,6 +1,6 @@
 package com.neil.springcart.security;
 
-import com.neil.springcart.CustomerRepository;
+import com.neil.springcart.repository.CustomerRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Bean;
