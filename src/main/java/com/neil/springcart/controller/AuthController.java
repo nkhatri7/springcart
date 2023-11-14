@@ -37,7 +37,7 @@ public class AuthController {
      * already exists.
      */
     @PostMapping("/register")
-    public ResponseEntity<CustomerResponse> createCustomer(
+    public ResponseEntity<CustomerResponse> handleCustomerRegistration(
             @RequestBody @Valid RegisterRequest registerRequest) {
         log.info("/api/v1/auth/register reached");
         if (authService.isEmailTaken(registerRequest.email().trim())) {
