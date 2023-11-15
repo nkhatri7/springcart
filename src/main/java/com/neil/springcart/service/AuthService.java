@@ -48,6 +48,15 @@ public class AuthService {
     }
 
     /**
+     * Searches the database for a customer with the given email.
+     * @param email The email of a customer.
+     * @return A Customer if one exists with that email, otherwise it is empty.
+     */
+    public Optional<Customer> getCustomerByEmail(String email) {
+        return customerRepository.findByEmail(email);
+    }
+
+    /**
      * Maps the given Customer object to a CustomerResponse object.
      * @param customer The Customer object to be converted to CustomerResponse.
      * @return A CustomerResponse object with the name and email from the
@@ -67,6 +76,18 @@ public class AuthService {
      */
     public String generateCustomerToken(Customer customer) {
         return jwtUtils.generateToken(customer);
+    }
+
+    /**
+     * Checks if the given raw password is the same as the given encrypted
+     * password.
+     * @param password The raw password.
+     * @param encryptedPassword The encrypted password.
+     * @return {@code true} if the raw password matches the encrypted password,
+     * {@code false} otherwise.
+     */
+    public boolean isPasswordValid(String password, String encryptedPassword) {
+        return passwordEncoder.matches(password, encryptedPassword);
     }
 
     /**
