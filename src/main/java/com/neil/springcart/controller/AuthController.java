@@ -47,7 +47,7 @@ public class AuthController {
         Customer customer = authService.createCustomer(registerRequest);
         String token = authService.generateCustomerToken(customer);
         HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.set("Authorization", "Bearer " + token);
+        responseHeaders.set(HttpHeaders.AUTHORIZATION, "Bearer " + token);
         CustomerResponse customerResponse = authService
                 .mapToCustomerResponse(customer);
         return ResponseEntity
@@ -80,7 +80,7 @@ public class AuthController {
         }
         String token = authService.generateCustomerToken(customer);
         HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.set("Authorization", "Bearer " + token);
+        responseHeaders.set(HttpHeaders.AUTHORIZATION, "Bearer " + token);
         CustomerResponse response = authService.mapToCustomerResponse(customer);
         return ResponseEntity
                 .status(HttpStatus.OK)
