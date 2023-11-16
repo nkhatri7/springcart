@@ -5,20 +5,22 @@ import com.neil.springcart.dto.CustomerResponse;
 import com.neil.springcart.dto.RegisterRequest;
 import com.neil.springcart.model.Customer;
 import com.neil.springcart.security.JwtUtils;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 @Service
-@AllArgsConstructor
 @Slf4j
-public class AuthService {
+public class CustomerAuthService extends RootAuthService {
     private final CustomerRepository customerRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtUtils jwtUtils;
+
+    public CustomerAuthService(CustomerRepository customerRepository, PasswordEncoder passwordEncoder, JwtUtils jwtUtils) {
+        super(passwordEncoder, jwtUtils);
+        this.customerRepository = customerRepository;
+    }
 
     /**
      * Creates a customer in the database with the data from the request.
@@ -28,8 +30,7 @@ public class AuthService {
     public Customer createCustomer(RegisterRequest request) {
         Customer customer = getCustomerFromRegisterRequest(request);
         // Encrypt received password
-        String encryptedPassword = passwordEncoder
-                .encode(request.password().trim());
+        String encryptedPassword = encryptPassword(request.password().trim());
         customer.setPassword(encryptedPassword);
         Customer savedCustomer = customerRepository.save(customer);
         log.info("Customer created in database");
@@ -69,26 +70,26 @@ public class AuthService {
                 .build();
     }
 
-    /**
-     * Generates a JWT token for the given Customer
-     * @param customer A Customer object
-     * @return A JWT token signed with the customer's credentials.
-     */
-    public String generateCustomerToken(Customer customer) {
-        return jwtUtils.generateToken(customer);
-    }
-
-    /**
-     * Checks if the given raw password is the same as the given encrypted
-     * password.
-     * @param password The raw password.
-     * @param encryptedPassword The encrypted password.
-     * @return {@code true} if the raw password matches the encrypted password,
-     * {@code false} otherwise.
-     */
-    public boolean isPasswordValid(String password, String encryptedPassword) {
-        return passwordEncoder.matches(password, encryptedPassword);
-    }
+//    /**
+//     * Generates a JWT token for the given Customer
+//     * @param customer A Customer object
+//     * @return A JWT token signed with the customer's credentials.
+//     */
+//    public String generateCustomerToken(Customer customer) {
+//        return jwtUtils.generateToken(customer);
+//    }
+//
+//    /**
+//     * Checks if the given raw password is the same as the given encrypted
+//     * password.
+//     * @param password The raw password.
+//     * @param encryptedPassword The encrypted password.
+//     * @return {@code true} if the raw password matches the encrypted password,
+//     * {@code false} otherwise.
+//     */
+//    public boolean isPasswordValid(String password, String encryptedPassword) {
+//        return passwordEncoder.matches(password, encryptedPassword);
+//    }
 
     /**
      * Maps the data from the given RegisterRequest object to a Customer object.

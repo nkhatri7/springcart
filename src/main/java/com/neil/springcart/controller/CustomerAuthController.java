@@ -5,7 +5,7 @@ import com.neil.springcart.dto.LoginRequest;
 import com.neil.springcart.dto.RegisterRequest;
 import com.neil.springcart.exception.BadRequestException;
 import com.neil.springcart.model.Customer;
-import com.neil.springcart.service.AuthService;
+import com.neil.springcart.service.CustomerAuthService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,8 +25,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/auth")
 @AllArgsConstructor
 @Slf4j
-public class AuthController {
-    private final AuthService authService;
+public class CustomerAuthController {
+    private final CustomerAuthService customerAuthService;
 
     /**
      * Handles incoming requests for the /register endpoint which registers a
@@ -41,14 +41,14 @@ public class AuthController {
     public ResponseEntity<CustomerResponse> handleCustomerRegistration(
             @RequestBody @Valid RegisterRequest registerRequest) {
         log.info("/api/v1/auth/register reached");
-        if (authService.isEmailTaken(registerRequest.email().trim())) {
+        if (customerAuthService.isEmailTaken(registerRequest.email().trim())) {
             throw new BadRequestException("Account with email already exists");
         }
-        Customer customer = authService.createCustomer(registerRequest);
-        String token = authService.generateCustomerToken(customer);
+        Customer customer = customerAuthService.createCustomer(registerRequest);
+        String token = customerAuthService.generateUserToken(customer);
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.set(HttpHeaders.AUTHORIZATION, "Bearer " + token);
-        CustomerResponse customerResponse = authService
+        CustomerResponse customerResponse = customerAuthService
                 .mapToCustomerResponse(customer);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -71,17 +71,19 @@ public class AuthController {
             @RequestBody @Valid LoginRequest loginRequest) {
         log.info("/api/v1/auth/login reached");
         // Check if account with email exists
-        Customer customer = authService.getCustomerByEmail(loginRequest.email())
+        Customer customer = customerAuthService
+                .getCustomerByEmail(loginRequest.email())
                 .orElseThrow(() -> new BadRequestException(
                         "Account with this email doesn't exist"));
-        if (!authService.isPasswordValid(loginRequest.password(),
+        if (!customerAuthService.isPasswordValid(loginRequest.password(),
                 customer.getPassword())) {
             throw new BadRequestException("Password is incorrect");
         }
-        String token = authService.generateCustomerToken(customer);
+        String token = customerAuthService.generateUserToken(customer);
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.set(HttpHeaders.AUTHORIZATION, "Bearer " + token);
-        CustomerResponse response = authService.mapToCustomerResponse(customer);
+        CustomerResponse response = customerAuthService
+                .mapToCustomerResponse(customer);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .headers(responseHeaders)

@@ -23,8 +23,8 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-class AuthServiceTest {
-    private AuthService authService;
+class CustomerAuthServiceTest {
+    private CustomerAuthService customerAuthService;
     @Mock
     private CustomerRepository customerRepository;
     @Mock
@@ -34,8 +34,8 @@ class AuthServiceTest {
 
     @BeforeEach
     void setUp() {
-        authService = new AuthService(customerRepository, passwordEncoder,
-                jwtUtils);
+        customerAuthService = new CustomerAuthService(customerRepository,
+                passwordEncoder, jwtUtils);
     }
 
     @AfterEach
@@ -49,7 +49,7 @@ class AuthServiceTest {
         RegisterRequest request = new RegisterRequest("name", "email",
                 "password");
         // When createCustomer() is called
-        authService.createCustomer(request);
+        customerAuthService.createCustomer(request);
         // Then CustomerRepository's save() method is called with a customer
         // object
         verify(customerRepository).save(any(Customer.class));
@@ -62,7 +62,7 @@ class AuthServiceTest {
         RegisterRequest request = new RegisterRequest(name, "email",
                 "password");
         // When createCustomer() is called
-        authService.createCustomer(request);
+        customerAuthService.createCustomer(request);
         // Then the Customer object is created with the same name from the
         // request
         ArgumentCaptor<Customer> argumentCaptor = ArgumentCaptor
@@ -79,7 +79,7 @@ class AuthServiceTest {
         RegisterRequest request = new RegisterRequest("name", email,
                 "password");
         // When createCustomer() is called
-        authService.createCustomer(request);
+        customerAuthService.createCustomer(request);
         // Then the Customer object is created with the same email from the
         // request
         ArgumentCaptor<Customer> argumentCaptor = ArgumentCaptor
@@ -96,7 +96,7 @@ class AuthServiceTest {
         RegisterRequest request = new RegisterRequest("name", "email",
                 password);
         // When createCustomer() is called
-        authService.createCustomer(request);
+        customerAuthService.createCustomer(request);
         // Then the Customer object has an encrypted version of the password
         // from the request
         ArgumentCaptor<Customer> argumentCaptor = ArgumentCaptor
@@ -116,7 +116,7 @@ class AuthServiceTest {
         given(customerRepository.findByEmail(email))
                 .willReturn(Optional.of(customer));
         // When isEmailTaken() is called with test@gmail.com
-        boolean isEmailTaken = authService.isEmailTaken(email);
+        boolean isEmailTaken = customerAuthService.isEmailTaken(email);
         // Then it should return true
         assertThat(isEmailTaken).isTrue();
     }
@@ -129,7 +129,7 @@ class AuthServiceTest {
         given(customerRepository.findByEmail(email))
                 .willReturn(Optional.empty());
         // When isEmailTaken() is called with test@gmail.com
-        boolean isEmailTaken = authService.isEmailTaken(email);
+        boolean isEmailTaken = customerAuthService.isEmailTaken(email);
         // Then it should return false
         assertThat(isEmailTaken).isFalse();
     }
@@ -140,7 +140,7 @@ class AuthServiceTest {
         String name = "name";
         Customer customer = new Customer(1L, name, "email", "password");
         // When mapToCustomerResponse() is called
-        CustomerResponse response = authService.mapToCustomerResponse(customer);
+        CustomerResponse response = customerAuthService.mapToCustomerResponse(customer);
         // Then the CustomerResponse object should have the same name as the
         // given Customer object
         assertThat(response.name()).isEqualTo(customer.getName());
@@ -152,17 +152,18 @@ class AuthServiceTest {
         String email = "email";
         Customer customer = new Customer(1L, "name", email, "password");
         // When mapToCustomerResponse() is called
-        CustomerResponse response = authService.mapToCustomerResponse(customer);
+        CustomerResponse response = customerAuthService
+                .mapToCustomerResponse(customer);
         // Then the CustomerResponse object should have the same email as the
         // given Customer object
         assertThat(response.email()).isEqualTo(customer.getEmail());
     }
 
     @Test
-    void generateCustomerToken_itShouldCallGenerateTokenFromJwtUtils() {
+    void generateUserToken_itShouldCallGenerateTokenFromJwtUtils() {
         // When generateCustomerToken() is called
         Customer customer = new Customer(1L, "name", "email", "password");
-        authService.generateCustomerToken(customer);
+        customerAuthService.generateUserToken(customer);
         // Then JwtUtils' generateToken() is called
         verify(jwtUtils).generateToken(customer);
     }
