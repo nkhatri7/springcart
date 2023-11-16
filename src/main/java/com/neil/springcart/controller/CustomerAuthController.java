@@ -40,7 +40,7 @@ public class CustomerAuthController {
     @PostMapping("/register")
     public ResponseEntity<CustomerResponse> handleCustomerRegistration(
             @RequestBody @Valid RegisterRequest registerRequest) {
-        log.info("/api/v1/auth/register reached");
+        log.info("POST /api/v1/auth/register");
         if (customerAuthService.isEmailTaken(registerRequest.email().trim())) {
             throw new BadRequestException("Account with email already exists");
         }
@@ -69,7 +69,7 @@ public class CustomerAuthController {
     @PostMapping("/login")
     public ResponseEntity<CustomerResponse> handleLoginRequest(
             @RequestBody @Valid LoginRequest loginRequest) {
-        log.info("/api/v1/auth/login reached");
+        log.info("POST /api/v1/auth/login");
         // Check if account with email exists
         Customer customer = customerAuthService
                 .getCustomerByEmail(loginRequest.email())

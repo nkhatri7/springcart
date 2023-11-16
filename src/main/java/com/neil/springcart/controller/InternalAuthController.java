@@ -40,7 +40,7 @@ public class InternalAuthController {
     @PostMapping("/login")
     public ResponseEntity<AdminAuthResponse> handleAdminLogin(
             @RequestBody @Valid LoginRequest loginRequest) {
-        log.info("/internal/auth/login reached");
+        log.info("POST /internal/auth/login");
         // Check if account with email exists
         Admin admin = internalAuthService.getAdminByEmail(loginRequest.email())
                 .orElseThrow(() -> new BadRequestException(
