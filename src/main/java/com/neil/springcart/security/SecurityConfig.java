@@ -1,5 +1,9 @@
 package com.neil.springcart.security;
 
+import com.neil.springcart.exception.BadRequestException;
+import com.neil.springcart.model.Admin;
+import com.neil.springcart.model.Customer;
+import com.neil.springcart.repository.AdminRepository;
 import com.neil.springcart.repository.CustomerRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Configuration;
@@ -13,6 +17,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Optional;
+
 /**
  * Security config class to set up security services in the application.
  */
@@ -20,6 +26,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @AllArgsConstructor
 public class SecurityConfig {
     private final CustomerRepository customerRepository;
+    private final AdminRepository adminRepository;
 
     /**
      * Implementation of UserDetailsService and the loadUserByUsername method.
@@ -28,10 +35,17 @@ public class SecurityConfig {
      */
     @Bean
     public UserDetailsService userDetailsService() {
-        return username -> customerRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException(
-                        "Customer not found"
-                ));
+        return username -> {
+            Optional<Customer> customer = customerRepository
+                    .findByEmail(username);
+            if (customer.isPresent()) {
+                return customer.get();
+            } else {
+                return adminRepository.findByEmail(username).orElseThrow(() -> {
+                    return new BadRequestException("User not found");
+                });
+            }
+        };
     }
 
     /**
