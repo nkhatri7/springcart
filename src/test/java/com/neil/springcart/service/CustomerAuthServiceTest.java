@@ -34,8 +34,8 @@ class CustomerAuthServiceTest {
 
     @BeforeEach
     void setUp() {
-        customerAuthService = new CustomerAuthService(customerRepository,
-                passwordEncoder, jwtUtils);
+        customerAuthService = new CustomerAuthService(passwordEncoder, jwtUtils,
+                customerRepository);
     }
 
     @AfterEach

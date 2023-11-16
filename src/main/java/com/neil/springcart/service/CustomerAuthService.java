@@ -15,9 +15,12 @@ import java.util.Optional;
 @Service
 @Slf4j
 public class CustomerAuthService extends RootAuthService {
+    @Autowired
     private final CustomerRepository customerRepository;
 
-    public CustomerAuthService(CustomerRepository customerRepository, PasswordEncoder passwordEncoder, JwtUtils jwtUtils) {
+    public CustomerAuthService(PasswordEncoder passwordEncoder,
+                               JwtUtils jwtUtils,
+                               CustomerRepository customerRepository) {
         super(passwordEncoder, jwtUtils);
         this.customerRepository = customerRepository;
     }
