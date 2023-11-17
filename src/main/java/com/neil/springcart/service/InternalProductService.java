@@ -6,6 +6,7 @@ import com.neil.springcart.model.Admin;
 import com.neil.springcart.model.Inventory;
 import com.neil.springcart.model.Product;
 import com.neil.springcart.repository.AdminRepository;
+import com.neil.springcart.repository.InventoryRepository;
 import com.neil.springcart.repository.ProductRepository;
 import com.neil.springcart.security.JwtUtils;
 import lombok.AllArgsConstructor;

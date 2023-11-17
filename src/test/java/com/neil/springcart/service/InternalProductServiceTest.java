@@ -7,6 +7,7 @@ import com.neil.springcart.model.ProductCategory;
 import com.neil.springcart.model.ProductGender;
 import com.neil.springcart.model.ProductSize;
 import com.neil.springcart.repository.AdminRepository;
+import com.neil.springcart.repository.InventoryRepository;
 import com.neil.springcart.repository.ProductRepository;
 import com.neil.springcart.security.JwtUtils;
 import org.junit.jupiter.api.AfterEach;
