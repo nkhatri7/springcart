@@ -26,7 +26,6 @@ public class Product {
     )
     private Long id;
     @Column(nullable = false, unique = true)
-    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID sku;
     @Column(nullable = false)
     private String brand;
@@ -40,6 +39,13 @@ public class Product {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private ProductGender gender;
-    @OneToMany(mappedBy = "product", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
     private List<Inventory> inventoryList;
+
+    // Generate random UUID for SKU
+    // https://stackoverflow.com/questions/62777718/how-to-auto-generate-uuid-value-for-non-primary-key-using-jpa
+    @PrePersist
+    protected void onCreate() {
+        setSku(UUID.randomUUID());
+    }
 }
