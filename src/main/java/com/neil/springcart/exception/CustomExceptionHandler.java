@@ -35,6 +35,17 @@ public class CustomExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<CustomErrorResponse> handleForbiddenException(
+            ForbiddenException ex) {
+        CustomErrorResponse errorResponse = new CustomErrorResponse();
+        errorResponse.setStatus(HttpStatus.FORBIDDEN.value());
+        errorResponse.setMessage(ex.getMessage());
+
+        log.error("Forbidden Exception: " + ex.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<CustomErrorResponse> handleException(Exception ex) {
         System.out.println(ex.getClass());
