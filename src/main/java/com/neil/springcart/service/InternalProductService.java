@@ -67,6 +67,7 @@ public class InternalProductService {
                 .description(request.description().trim())
                 .category(request.category())
                 .gender(request.gender())
+                .isActive(true)
                 .build();
     }
 

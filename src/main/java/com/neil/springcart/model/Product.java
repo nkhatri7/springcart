@@ -39,6 +39,8 @@ public class Product {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private ProductGender gender;
+    @Column(nullable = false)
+    private boolean isActive;
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
     private List<Inventory> inventoryList;
 
