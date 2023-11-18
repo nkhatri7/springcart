@@ -5,7 +5,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -43,41 +42,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
         final String authHeader = request.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            sendUnauthenticatedErrorMessage(response);
+            filterChain.doFilter(request, response);
             return;
         }
-
-        final String token = authHeader.substring(7);
-        final String userEmail = jwtUtils.extractUsername(token);
-        if (userEmail == null) {
-            sendUnauthenticatedErrorMessage(response);
-            return;
-        }
-
+        final String jwt = authHeader.substring(7);
+        final String userEmail = jwtUtils.extractUsername(jwt);
         Authentication authentication = SecurityContextHolder
                 .getContext()
                 .getAuthentication();
-        if (authentication == null) {
+        if (userEmail != null && authentication == null) {
             UserDetails userDetails = this.userDetailsService
                     .loadUserByUsername(userEmail);
-            if (!jwtUtils.isTokenValid(token, userDetails)) {
-                sendForbiddenErrorMessage(response);
-                return;
+            if (jwtUtils.isTokenValid(jwt, userDetails)) {
+                setRequestAuthentication(userDetails, request);
             }
-            setRequestAuthentication(userDetails, request);
         }
-
         filterChain.doFilter(request, response);
-    }
-
-    private void sendUnauthenticatedErrorMessage(HttpServletResponse response)
-            throws IOException {
-        response.sendError(HttpStatus.UNAUTHORIZED.value(), "Invalid token");
-    }
-
-    private void sendForbiddenErrorMessage(HttpServletResponse response)
-            throws IOException {
-        response.sendError(HttpStatus.FORBIDDEN.value(), "Invalid token");
     }
 
     /**
@@ -92,8 +72,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 null,
                 userDetails.getAuthorities()
         );
-        authToken.setDetails(new WebAuthenticationDetailsSource()
-                .buildDetails(request));
+        authToken.setDetails(
+                new WebAuthenticationDetailsSource().buildDetails(request)
+        );
         SecurityContextHolder.getContext().setAuthentication(authToken);
     }
 }
