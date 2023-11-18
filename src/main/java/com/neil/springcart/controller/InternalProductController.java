@@ -1,7 +1,11 @@
 package com.neil.springcart.controller;
 
 import com.neil.springcart.dto.NewProductRequest;
+import com.neil.springcart.dto.UpdateProductRequest;
+import com.neil.springcart.exception.BadRequestException;
 import com.neil.springcart.exception.ForbiddenException;
+import com.neil.springcart.exception.NotFoundException;
+import com.neil.springcart.model.Product;
 import com.neil.springcart.service.InternalProductService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -33,5 +37,37 @@ public class InternalProductController {
             throw new ForbiddenException("User is not an admin");
         }
         internalProductService.createProduct(request);
+    }
+
+    /**
+     * Handles incoming requests to update product details.
+     * @param authHeader The Authorization header from the request.
+     * @param id The ID of the product.
+     * @param request The request body.
+     * @throws ForbiddenException If the user making the request is not an
+     * admin.
+     * @throws NotFoundException If a product with that ID does not exist.
+     * @throws BadRequestException If the product with that ID is inactive.
+     */
+    @PatchMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public void handleProductUpdate(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader,
+            @PathVariable Long id, @RequestBody UpdateProductRequest request) {
+        log.info("PATCH /internal/products/{}", id);
+
+        if (!internalProductService.isAdmin(authHeader)) {
+            throw new ForbiddenException("User is not an admin");
+        }
+        // Check if product with ID exists
+        Product product = internalProductService.getProduct(id)
+                .orElseThrow(() -> new NotFoundException(
+                        "Product with ID " + id + " does not exist"));
+        // Check if product is active
+        if (!product.isActive()) {
+            throw new BadRequestException("Product is not active");
+        }
+        internalProductService.updateProduct(product, request);
+        log.info("Product with ID {} updated", id);
     }
 }

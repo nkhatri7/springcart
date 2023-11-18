@@ -2,6 +2,7 @@ package com.neil.springcart.service;
 
 import com.neil.springcart.dto.InventoryDto;
 import com.neil.springcart.dto.NewProductRequest;
+import com.neil.springcart.dto.UpdateProductRequest;
 import com.neil.springcart.model.Admin;
 import com.neil.springcart.model.Inventory;
 import com.neil.springcart.model.Product;
@@ -9,6 +10,7 @@ import com.neil.springcart.repository.AdminRepository;
 import com.neil.springcart.repository.InventoryRepository;
 import com.neil.springcart.repository.ProductRepository;
 import com.neil.springcart.security.JwtUtils;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -78,5 +80,47 @@ public class InternalProductService {
                 .size(inventoryDto.size())
                 .stock(inventoryDto.stock())
                 .build();
+    }
+
+    /**
+     * Gets the product with the given ID from the database if one exists.
+     * @param id The ID of the product.
+     * @return An optional product object which is empty is a product with the
+     * given ID does not exist.
+     */
+    public Optional<Product> getProduct(Long id) {
+        return productRepository.findById(id);
+    }
+
+    /**
+     * Updates product details for the given product with data from the given
+     * request.
+     * @param product The product being updated.
+     * @param request The updated data.
+     */
+    @Transactional
+    public void updateProduct(Product product, UpdateProductRequest request) {
+        if (request.name() != null && canUpdateValue(product.getName(),
+                request.name())) {
+            product.setName(request.name().trim());
+        }
+
+        if (request.description() != null && canUpdateValue(
+                product.getDescription(), request.description())) {
+            product.setDescription(request.description().trim());
+        }
+    }
+
+    /**
+     * Checks if a property can be updated by checking if the new value is not
+     * equal to the previous value.
+     * @param oldValue The old value of the property.
+     * @param newValue The new value of the property.
+     * @return {@code true} if the value can be updated, {@code false}
+     * otherwise.
+     */
+    private boolean canUpdateValue(String oldValue, String newValue) {
+        return !newValue.trim().isEmpty()
+                && !oldValue.trim().equals(newValue.trim());
     }
 }

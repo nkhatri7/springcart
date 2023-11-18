@@ -2,10 +2,8 @@ package com.neil.springcart.service;
 
 import com.neil.springcart.dto.InventoryDto;
 import com.neil.springcart.dto.NewProductRequest;
-import com.neil.springcart.model.Admin;
-import com.neil.springcart.model.ProductCategory;
-import com.neil.springcart.model.ProductGender;
-import com.neil.springcart.model.ProductSize;
+import com.neil.springcart.dto.UpdateProductRequest;
+import com.neil.springcart.model.*;
 import com.neil.springcart.repository.AdminRepository;
 import com.neil.springcart.repository.InventoryRepository;
 import com.neil.springcart.repository.ProductRepository;
@@ -21,6 +19,7 @@ import org.springframework.test.context.ActiveProfiles;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -92,6 +91,76 @@ class InternalProductServiceTest {
         internalProductService.createProduct(request);
         verify(inventoryRepository, times(request.inventory().size()))
                 .save(any());
+    }
+
+    @Test
+    void updateProductUpdatesNameIfNameIsInTheRequestAndIsDifferentToTheCurrentValue() {
+        // Given a request contains a name property that is different to the
+        // current product's name
+        String oldName = "old name";
+        String newName = "new name";
+        Product product = buildProduct(oldName, "description");
+        UpdateProductRequest request = buildUpdateProductRequestWithName(
+                newName);
+        // When updateProduct() is called
+        internalProductService.updateProduct(product, request);
+        // Then the product name is changed
+        assertThat(product.getName()).isEqualTo(newName);
+    }
+
+    @Test
+    void updateProductUpdatesDescriptionIfDescriptionIsInTheRequestAndIsDifferentToTheCurrentValue() {
+        // Given a request contains a description property that is different to
+        // the current product's description
+        String oldDescription = "old description";
+        String newDescription = "new description";
+        Product product = buildProduct("name", oldDescription);
+        UpdateProductRequest request = buildUpdateProductRequestWithDescription(
+                newDescription);
+        // When updateProduct() is called
+        internalProductService.updateProduct(product, request);
+        // Then the product description is changed
+        assertThat(product.getDescription()).isEqualTo(newDescription);
+    }
+
+    @Test
+    void updateProductUpdatesNothingIfNothingIsInTheRequest() {
+        // Given nothing is in the request
+        String name = "name";
+        String description = "description";
+        Product product = buildProduct(name, description);
+        UpdateProductRequest request = UpdateProductRequest.builder().build();
+        // When updateProduct() is called
+        internalProductService.updateProduct(product, request);
+        // Then nothing is changed
+        assertThat(product.getName()).isEqualTo(name);
+        assertThat(product.getDescription()).isEqualTo(description);
+    }
+
+    private Product buildProduct(String name, String description) {
+        return Product.builder()
+                .id(1L)
+                .sku(UUID.randomUUID())
+                .brand("brand")
+                .name(name)
+                .description(description)
+                .category(ProductCategory.SPORTSWEAR)
+                .gender(ProductGender.MALE)
+                .isActive(true)
+                .inventoryList(new ArrayList<>())
+                .build();
+    }
+
+    private UpdateProductRequest buildUpdateProductRequestWithName(String name) {
+        return UpdateProductRequest.builder()
+                .name(name)
+                .build();
+    }
+
+    private UpdateProductRequest buildUpdateProductRequestWithDescription(String description) {
+        return UpdateProductRequest.builder()
+                .description(description)
+                .build();
     }
 
     private NewProductRequest buildNewProductRequest(
