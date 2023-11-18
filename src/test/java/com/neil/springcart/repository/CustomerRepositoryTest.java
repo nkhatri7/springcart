@@ -6,12 +6,14 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
+@ActiveProfiles("test")
 class CustomerRepositoryTest {
     @Autowired
     private CustomerRepository customerRepository;
@@ -25,10 +27,7 @@ class CustomerRepositoryTest {
     void findByEmail_itShouldReturnCustomerIfCustomerWithEmailExists() {
         // Given a customer with the email test@gmail.com exists
         String email = "test@gmail.com";
-        Customer customer = new Customer();
-        customer.setName("test");
-        customer.setEmail(email);
-        customer.setPassword("password");
+        Customer customer = createCustomerWithEmail(email);
         customerRepository.save(customer);
         // When findByEmail is called
         Optional<Customer> customerInDb = customerRepository
@@ -45,5 +44,13 @@ class CustomerRepositoryTest {
         Optional<Customer> customerInDb = customerRepository.findByEmail(email);
         // Then the result is empty
         assertThat(customerInDb).isEmpty();
+    }
+
+    private Customer createCustomerWithEmail(String email) {
+        return Customer.builder()
+                .name("test")
+                .email(email)
+                .password("password")
+                .build();
     }
 }
