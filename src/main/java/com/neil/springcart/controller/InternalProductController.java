@@ -52,9 +52,9 @@ public class InternalProductController {
      */
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public void handleProductUpdate(
+    public void handleProductUpdate(@PathVariable Long id,
             @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader,
-            @PathVariable Long id, @RequestBody UpdateProductRequest request) {
+            @RequestBody UpdateProductRequest request) {
         log.info("PATCH /internal/products/{}", id);
 
         if (!internalProductService.isAdmin(authHeader)) {
