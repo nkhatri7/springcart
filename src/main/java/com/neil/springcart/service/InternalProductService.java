@@ -41,11 +41,13 @@ public class InternalProductService {
     /**
      * Saves a product with the details from the request in the database.
      * @param request The request containing the product details.
+     * @return The created product.
      */
-    public void createProduct(NewProductRequest request) {
+    public Product createProduct(NewProductRequest request) {
         Product product = mapNewProductRequestToProduct(request);
         Product newProduct = productRepository.save(product);
         saveProductInventory(newProduct, request.inventory());
+        return newProduct;
     }
 
     /**

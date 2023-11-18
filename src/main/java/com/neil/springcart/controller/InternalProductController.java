@@ -36,7 +36,8 @@ public class InternalProductController {
         if (!internalProductService.isAdmin(authHeader)) {
             throw new ForbiddenException("User is not an admin");
         }
-        internalProductService.createProduct(request);
+        Product product = internalProductService.createProduct(request);
+        log.info("Product with ID {} created", product.getId());
     }
 
     /**
