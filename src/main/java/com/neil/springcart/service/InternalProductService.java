@@ -45,27 +45,11 @@ public class InternalProductService {
      */
     public Product createProduct(NewProductRequest request) {
         Product product = mapNewProductRequestToProduct(request);
-        Product newProduct = productRepository.save(product);
-        saveProductInventory(newProduct, request.inventory());
-        return newProduct;
-    }
-
-    /**
-     * Saves the inventory for the given product in the database.
-     * @param product The product for which the inventory is assigned to.
-     * @param inventoryDtoList The DTO list of inventory items.
-     */
-    private void saveProductInventory(Product product,
-                                      List<InventoryDto> inventoryDtoList) {
-        for (InventoryDto inventoryDto : inventoryDtoList) {
-            Inventory inventory = mapInventoryDtoToInventory(inventoryDto,
-                    product);
-            inventoryRepository.save(inventory);
-        }
+        return productRepository.save(product);
     }
 
     private Product mapNewProductRequestToProduct(NewProductRequest request) {
-        return Product.builder()
+        Product product = Product.builder()
                 .brand(request.brand().trim())
                 .name(request.name().trim())
                 .description(request.description().trim())
@@ -73,6 +57,16 @@ public class InternalProductService {
                 .gender(request.gender())
                 .isActive(true)
                 .build();
+        addInventoryToProduct(request.inventory(), product);
+        return product;
+    }
+
+    private void addInventoryToProduct(List<InventoryDto> inventoryDtoList,
+                                       Product product) {
+        List<Inventory> inventoryList = inventoryDtoList.stream()
+                .map(dto -> mapInventoryDtoToInventory(dto, product))
+                .toList();
+        product.setInventoryList(inventoryList);
     }
 
     private Inventory mapInventoryDtoToInventory(InventoryDto inventoryDto,

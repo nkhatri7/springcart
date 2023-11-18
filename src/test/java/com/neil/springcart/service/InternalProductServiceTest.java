@@ -82,18 +82,6 @@ class InternalProductServiceTest {
     }
 
     @Test
-    void createProductSaves2InventoryItemsWhenThereAre2InventoryItemsInTheRequest() {
-        List<InventoryDto> inventoryList = List.of(
-                new InventoryDto(ProductSize.S, 5),
-                new InventoryDto(ProductSize.L, 10)
-        );
-        NewProductRequest request = buildNewProductRequest(inventoryList);
-        internalProductService.createProduct(request);
-        verify(inventoryRepository, times(request.inventory().size()))
-                .save(any());
-    }
-
-    @Test
     void updateProductUpdatesNameIfNameIsInTheRequestAndIsDifferentToTheCurrentValue() {
         // Given a request contains a name property that is different to the
         // current product's name

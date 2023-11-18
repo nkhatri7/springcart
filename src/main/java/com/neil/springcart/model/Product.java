@@ -41,7 +41,11 @@ public class Product {
     private ProductGender gender;
     @Column(nullable = false)
     private boolean isActive;
-    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
+    @OneToMany(
+            mappedBy = "product",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY
+    )
     private List<Inventory> inventoryList;
 
     // Generate random UUID for SKU
