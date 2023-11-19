@@ -3,6 +3,7 @@ package com.neil.springcart.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neil.springcart.dto.InventoryDto;
 import com.neil.springcart.dto.NewProductRequest;
+import com.neil.springcart.dto.UpdateProductInventoryRequest;
 import com.neil.springcart.dto.UpdateProductRequest;
 import com.neil.springcart.model.*;
 import com.neil.springcart.repository.AdminRepository;
@@ -127,6 +128,42 @@ class InternalProductControllerTest {
                 .isEqualTo(newDescription);
     }
 
+    @Test
+    void handleUpdateProductInventoryUpdatesInventory() throws Exception {
+        // When a request is coming from and admin and their JWT token
+        Admin admin = createAdmin();
+        String token = generateUserToken(admin);
+        List<Inventory> productInventory = List.of(
+                buildInventory(ProductSize.S, 10)
+        );
+        Product product = saveProductToDb("name", "description",
+                productInventory);
+        List<InventoryDto> inventoryDtoList = List.of(
+                new InventoryDto(ProductSize.S, 20),
+                new InventoryDto(ProductSize.M, 20)
+        );
+        UpdateProductInventoryRequest request =
+                new UpdateProductInventoryRequest(inventoryDtoList);
+        String requestJson = objectMapper.writeValueAsString(request);
+        HttpHeaders requestHeaders = new HttpHeaders();
+        requestHeaders.set(HttpHeaders.AUTHORIZATION, "Bearer " + token);
+        // Then a 200 status is returned with the product inventory being
+        // updated
+        mockMvc.perform(MockMvcRequestBuilders
+                        .patch("/internal/products/" + product.getId() + "/inventory")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .headers(requestHeaders)
+                        .content(requestJson))
+                .andExpect(status().isOk());
+        List<Inventory> updatedInventory = inventoryRepository
+                .findInventoryByProduct(product.getId());
+        assertThat(updatedInventory.size()).isEqualTo(inventoryDtoList.size());
+        Inventory smallInventory = updatedInventory.get(0);
+        assertThat(smallInventory.getStock()).isEqualTo(20);
+        Inventory mediumInventory = updatedInventory.get(1);
+        assertThat(mediumInventory.getStock()).isEqualTo(20);
+    }
+
     private String generateUserToken(UserDetails user) {
         return jwtUtils.generateToken(user);
     }
@@ -172,19 +209,37 @@ class InternalProductControllerTest {
     }
 
     private Product saveProductToDb(String name, String description) {
-        Product product = buildProduct(name, description);
+        Product product = buildProduct(name, description, new ArrayList<>());
         return productRepository.save(product);
     }
 
-    private Product buildProduct(String name, String description) {
-        return Product.builder()
+    private Product saveProductToDb(String name, String description,
+                                    List<Inventory> inventoryList) {
+        Product product = buildProduct(name, description, inventoryList);
+        return productRepository.save(product);
+    }
+
+    private Product buildProduct(String name, String description,
+                                 List<Inventory> inventoryList) {
+        Product product = Product.builder()
                 .name(name)
                 .description(description)
                 .brand("brand")
                 .category(ProductCategory.SPORTSWEAR)
                 .gender(ProductGender.MALE)
                 .isActive(true)
-                .inventoryList(new ArrayList<>())
+                .build();
+        for (Inventory inventory : inventoryList) {
+            inventory.setProduct(product);
+        }
+        product.setInventoryList(inventoryList);
+        return product;
+    }
+
+    private Inventory buildInventory(ProductSize size, int stock) {
+        return Inventory.builder()
+                .size(size)
+                .stock(stock)
                 .build();
     }
 }
