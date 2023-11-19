@@ -3,6 +3,7 @@ package com.neil.springcart.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neil.springcart.dto.InventoryDto;
 import com.neil.springcart.dto.NewProductRequest;
+import com.neil.springcart.dto.UpdateProductRequest;
 import com.neil.springcart.model.*;
 import com.neil.springcart.repository.AdminRepository;
 import com.neil.springcart.repository.CustomerRepository;
@@ -21,7 +22,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -92,6 +95,38 @@ class InternalProductControllerTest {
                 .andExpect(status().isForbidden());
     }
 
+    @Test
+    void handleUpdateProductUpdatesProductNameAndDescription()
+            throws Exception {
+        // When a request is coming from and admin and their JWT token
+        Admin admin = createAdmin();
+        String token = generateUserToken(admin);
+        String oldName = "old name";
+        String oldDescription = "old description";
+        String newName = "new name";
+        String newDescription = "new description";
+        Product product = saveProductToDb(oldName, oldDescription);
+        UpdateProductRequest request = generateUpdateProductRequest(newName,
+                newDescription);
+        String requestJson = objectMapper.writeValueAsString(request);
+        HttpHeaders requestHeaders = new HttpHeaders();
+        requestHeaders.set(HttpHeaders.AUTHORIZATION, "Bearer " + token);
+        // Then a 200 status is returned with the name and description for the
+        // product is updated
+        mockMvc.perform(MockMvcRequestBuilders
+                        .patch("/internal/products/" + product.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .headers(requestHeaders)
+                        .content(requestJson))
+                .andExpect(status().isOk());
+        Optional<Product> updatedProduct = productRepository
+                .findById(product.getId());
+        assertThat(updatedProduct.isPresent()).isTrue();
+        assertThat(updatedProduct.get().getName()).isEqualTo(newName);
+        assertThat(updatedProduct.get().getDescription())
+                .isEqualTo(newDescription);
+    }
+
     private String generateUserToken(UserDetails user) {
         return jwtUtils.generateToken(user);
     }
@@ -125,6 +160,31 @@ class InternalProductControllerTest {
                 .category(ProductCategory.SPORTSWEAR)
                 .gender(ProductGender.MALE)
                 .inventory(inventoryList)
+                .build();
+    }
+
+    private UpdateProductRequest generateUpdateProductRequest(String name,
+                                                              String description) {
+        return UpdateProductRequest.builder()
+                .name(name)
+                .description(description)
+                .build();
+    }
+
+    private Product saveProductToDb(String name, String description) {
+        Product product = buildProduct(name, description);
+        return productRepository.save(product);
+    }
+
+    private Product buildProduct(String name, String description) {
+        return Product.builder()
+                .name(name)
+                .description(description)
+                .brand("brand")
+                .category(ProductCategory.SPORTSWEAR)
+                .gender(ProductGender.MALE)
+                .isActive(true)
+                .inventoryList(new ArrayList<>())
                 .build();
     }
 }
