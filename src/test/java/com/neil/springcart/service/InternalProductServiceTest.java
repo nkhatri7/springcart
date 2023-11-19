@@ -12,6 +12,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
@@ -125,6 +126,30 @@ class InternalProductServiceTest {
         assertThat(product.getDescription()).isEqualTo(description);
     }
 
+    @Test
+    void updateProductInventoryCreatesNewInventoryItemIfInventoryListHasNewInventorySize() {
+        // Given the new updated inventory list has a new size
+        Product product = buildProduct("name", "description");
+        List<Inventory> productInventory = List.of(
+            buildInventory(ProductSize.S, 10, product)
+        );
+        given(inventoryRepository.findInventoryByProduct(product.getId()))
+                .willReturn(productInventory);
+        List<InventoryDto> inventoryDtoList = List.of(
+            new InventoryDto(ProductSize.S, 20),
+            new InventoryDto(ProductSize.M, 20)
+        );
+        // When updateProductInventory() is called
+        internalProductService.updateProductInventory(product,
+                inventoryDtoList);
+        // Then the new size is added to the database
+        ArgumentCaptor<Inventory> argumentCaptor = ArgumentCaptor.forClass(
+                Inventory.class);
+        verify(inventoryRepository).save(argumentCaptor.capture());
+        Inventory capturedInventory = argumentCaptor.getValue();
+        assertThat(capturedInventory.getSize()).isEqualTo(ProductSize.M);
+    }
+
     private Product buildProduct(String name, String description) {
         return Product.builder()
                 .id(1L)
@@ -167,6 +192,15 @@ class InternalProductServiceTest {
         return Admin.builder()
                 .email(email)
                 .password("password")
+                .build();
+    }
+
+    private Inventory buildInventory(ProductSize size, int stock,
+                                     Product product) {
+        return Inventory.builder()
+                .size(size)
+                .stock(stock)
+                .product(product)
                 .build();
     }
 }
