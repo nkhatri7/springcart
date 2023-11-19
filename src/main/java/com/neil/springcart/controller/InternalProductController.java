@@ -78,6 +78,16 @@ public class InternalProductController {
         log.info("Product with ID {} updated", id);
     }
 
+    /**
+     * Handles incoming requests to update product inventory.
+     * @param id THe ID of the product.
+     * @param authHeader The Authorization header from the request.
+     * @param request The request body.
+     * @throws ForbiddenException If the user making the request is not an
+     * admin.
+     * @throws NotFoundException If a product with that ID does not exist.
+     * @throws BadRequestException If the product with that ID is inactive.
+     */
     @PatchMapping("/{id}/inventory")
     public void handleProductInventoryUpdate(@PathVariable Long id,
             @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader,
