@@ -1,6 +1,8 @@
 package com.neil.springcart.controller;
 
+import com.neil.springcart.dto.InventoryDto;
 import com.neil.springcart.dto.NewProductRequest;
+import com.neil.springcart.dto.UpdateProductInventoryRequest;
 import com.neil.springcart.dto.UpdateProductRequest;
 import com.neil.springcart.exception.BadRequestException;
 import com.neil.springcart.exception.ForbiddenException;
@@ -13,6 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/internal/products")
@@ -36,6 +40,7 @@ public class InternalProductController {
         if (!internalProductService.isAdmin(authHeader)) {
             throw new ForbiddenException("User is not an admin");
         }
+
         Product product = internalProductService.createProduct(request);
         log.info("Product with ID {} created", product.getId());
     }
@@ -68,7 +73,31 @@ public class InternalProductController {
         if (!product.isActive()) {
             throw new BadRequestException("Product is not active");
         }
+
         internalProductService.updateProduct(product, request);
         log.info("Product with ID {} updated", id);
+    }
+
+    @PatchMapping("/{id}/inventory")
+    public void handleProductInventoryUpdate(@PathVariable Long id,
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader,
+            @RequestBody UpdateProductInventoryRequest request) {
+        log.info("PATCH /internal/products/{}/inventory", id);
+
+        if (!internalProductService.isAdmin(authHeader)) {
+            throw new ForbiddenException("User is not an admin");
+        }
+        // Check if product with ID exists
+        Product product = internalProductService.getProduct(id)
+                .orElseThrow(() -> new NotFoundException(
+                        "Product with ID " + id + " does not exist"));
+        // Check if product is active
+        if (!product.isActive()) {
+            throw new BadRequestException("Product is not active");
+        }
+
+        internalProductService.updateProductInventory(product,
+                request.inventory());
+        log.info("Inventory for product with ID {} updated", id);
     }
 }

@@ -119,4 +119,55 @@ public class InternalProductService {
         return !newValue.trim().isEmpty()
                 && !oldValue.trim().equals(newValue.trim());
     }
+
+    /**
+     * Updates the inventory for the given product in the database.
+     * @param product The product of which the inventory should be updated for.
+     * @param inventoryDtoList The updated inventory data.
+     */
+    public void updateProductInventory(Product product,
+                                       List<InventoryDto> inventoryDtoList) {
+        List<Inventory> productInventory = inventoryRepository
+                .findInventoryByProduct(product.getId());
+        List<Inventory> inventoryList = inventoryDtoList.stream()
+                .map(dto -> mapInventoryDtoToInventory(dto, product))
+                .toList();
+        for (Inventory inventory : inventoryList) {
+            saveInventoryItem(inventory, productInventory);
+        }
+    }
+
+    /**
+     * Saves the given inventory item to the database.
+     * @param inventory An inventory item for a product.
+     * @param productInventory The existing product inventory list.
+     */
+    @Transactional
+    private void saveInventoryItem(Inventory inventory,
+                                   List<Inventory> productInventory) {
+        Optional<Inventory> existingInventory = getExistingInventoryItem(
+                inventory, productInventory);
+        // Check if inventory item exists and update it, otherwise create
+        // new inventory item for product
+        if (existingInventory.isPresent()) {
+            existingInventory.get().setStock(inventory.getStock());
+        } else {
+            inventoryRepository.save(inventory);
+        }
+    }
+
+    /**
+     * Gets the matching inventory item from the existing product inventory if
+     * it exists.
+     * @param inventory The inventory item to be added.
+     * @param productInventory The existing product inventory list.
+     * @return {@code true} if the inventory list contains an item with the same
+     * size as the given inventory item, {@code false} otherwise.
+     */
+    private Optional<Inventory> getExistingInventoryItem(Inventory inventory,
+                                             List<Inventory> productInventory) {
+        return productInventory.stream()
+                .filter(i -> i.getSize().equals(inventory.getSize()))
+                .findFirst();
+    }
 }
