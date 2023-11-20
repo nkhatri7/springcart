@@ -72,7 +72,7 @@ class InternalProductControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .headers(requestHeaders)
                         .content(requestJson))
-                .andExpect(status().isCreated());
+                        .andExpect(status().isCreated());
         assertThat(productRepository.findAll().size()).isEqualTo(1);
         assertThat(inventoryRepository.findAll().size())
                 .isEqualTo(request.inventory().size());
@@ -93,7 +93,7 @@ class InternalProductControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .headers(requestHeaders)
                         .content(requestJson))
-                .andExpect(status().isForbidden());
+                        .andExpect(status().isForbidden());
     }
 
     @Test
@@ -119,7 +119,7 @@ class InternalProductControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .headers(requestHeaders)
                         .content(requestJson))
-                .andExpect(status().isOk());
+                        .andExpect(status().isOk());
         Optional<Product> updatedProduct = productRepository
                 .findById(product.getId());
         assertThat(updatedProduct.isPresent()).isTrue();
@@ -130,7 +130,7 @@ class InternalProductControllerTest {
 
     @Test
     void handleUpdateProductInventoryUpdatesInventory() throws Exception {
-        // When a request is coming from and admin and their JWT token
+        // When a request is coming from an admin and their JWT token
         Admin admin = createAdmin();
         String token = generateUserToken(admin);
         List<Inventory> productInventory = List.of(
@@ -154,7 +154,7 @@ class InternalProductControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .headers(requestHeaders)
                         .content(requestJson))
-                .andExpect(status().isOk());
+                        .andExpect(status().isOk());
         List<Inventory> updatedInventory = inventoryRepository
                 .findInventoryByProduct(product.getId());
         assertThat(updatedInventory.size()).isEqualTo(inventoryDtoList.size());
@@ -162,6 +162,46 @@ class InternalProductControllerTest {
         assertThat(smallInventory.getStock()).isEqualTo(20);
         Inventory mediumInventory = updatedInventory.get(1);
         assertThat(mediumInventory.getStock()).isEqualTo(20);
+    }
+
+    @Test
+    void handleArchiveProductArchivesProduct() throws Exception {
+        // When a request is coming from an admin and their JWT token and
+        // the product is not archived
+        Admin admin = createAdmin();
+        String token = generateUserToken(admin);
+        Product product = saveProductToDb("name", "description", true);
+        HttpHeaders requestHeaders = new HttpHeaders();
+        requestHeaders.set(HttpHeaders.AUTHORIZATION, "Bearer " + token);
+        // Then a 200 status is returned with the product being archived
+        mockMvc.perform(MockMvcRequestBuilders
+                .patch("/internal/products/" + product.getId() + "/archive")
+                .contentType(MediaType.APPLICATION_JSON)
+                .headers(requestHeaders))
+                .andExpect(status().isOk());
+        Optional<Product> updatedProduct = productRepository
+                .findById(product.getId());
+        updatedProduct.ifPresent(p -> assertThat(p.isActive()).isFalse());
+    }
+
+    @Test
+    void handleUnarchiveProductUnarchivesProduct() throws Exception {
+        // When a request is coming from an admin and their JWT token and
+        // the product is archived
+        Admin admin = createAdmin();
+        String token = generateUserToken(admin);
+        Product product = saveProductToDb("name", "description", false);
+        HttpHeaders requestHeaders = new HttpHeaders();
+        requestHeaders.set(HttpHeaders.AUTHORIZATION, "Bearer " + token);
+        // Then a 200 status is returned with the product being unarchived
+        mockMvc.perform(MockMvcRequestBuilders
+                        .patch("/internal/products/" + product.getId() + "/unarchive")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .headers(requestHeaders))
+                .andExpect(status().isOk());
+        Optional<Product> updatedProduct = productRepository
+                .findById(product.getId());
+        updatedProduct.ifPresent(p -> assertThat(p.isActive()).isTrue());
     }
 
     private String generateUserToken(UserDetails user) {
@@ -209,25 +249,34 @@ class InternalProductControllerTest {
     }
 
     private Product saveProductToDb(String name, String description) {
-        Product product = buildProduct(name, description, new ArrayList<>());
+        Product product = buildProduct(name, description, new ArrayList<>(),
+                true);
         return productRepository.save(product);
     }
 
     private Product saveProductToDb(String name, String description,
                                     List<Inventory> inventoryList) {
-        Product product = buildProduct(name, description, inventoryList);
+        Product product = buildProduct(name, description, inventoryList, true);
+        return productRepository.save(product);
+    }
+
+    private Product saveProductToDb(String name, String description,
+                                    boolean isActive) {
+        Product product = buildProduct(name, description, new ArrayList<>(),
+                isActive);
         return productRepository.save(product);
     }
 
     private Product buildProduct(String name, String description,
-                                 List<Inventory> inventoryList) {
+                                 List<Inventory> inventoryList,
+                                 boolean isActive) {
         Product product = Product.builder()
                 .name(name)
                 .description(description)
                 .brand("brand")
                 .category(ProductCategory.SPORTSWEAR)
                 .gender(ProductGender.MALE)
-                .isActive(true)
+                .isActive(isActive)
                 .build();
         for (Inventory inventory : inventoryList) {
             inventory.setProduct(product);
