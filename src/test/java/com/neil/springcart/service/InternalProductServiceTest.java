@@ -150,6 +150,27 @@ class InternalProductServiceTest {
         assertThat(capturedInventory.getSize()).isEqualTo(ProductSize.M);
     }
 
+    @Test
+    void toggleProductActiveStateArchivesTheProductIfItIsNotArchived() {
+        // Given a product is not archived
+        Product product = buildProduct("name", "description");
+        // When toggleProductActiveState() is called
+        internalProductService.toggleProductActiveState(product);
+        // Then product will be archived
+        assertThat(product.isActive()).isFalse();
+    }
+
+    @Test
+    void toggleProductActiveStateUnarchivesTheProductIfItIsArchived() {
+        // Given a product is archived
+        Product product = buildProduct("name", "description");
+        product.setActive(false);
+        // When toggleProductActiveState() is called
+        internalProductService.toggleProductActiveState(product);
+        // Then product will be unarchived
+        assertThat(product.isActive()).isTrue();
+    }
+
     private Product buildProduct(String name, String description) {
         return Product.builder()
                 .id(1L)

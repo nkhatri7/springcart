@@ -110,4 +110,46 @@ public class InternalProductController {
                 request.inventory());
         log.info("Inventory for product with ID {} updated", id);
     }
+
+    @PatchMapping("/{id}/archive")
+    public void handleArchiveProduct(@PathVariable Long id,
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
+        log.info("PATCH /internal/products/{}/archive", id);
+
+        if (!internalProductService.isAdmin(authHeader)) {
+            throw new ForbiddenException("User is not an admin");
+        }
+        // Check if product with ID exists
+        Product product = internalProductService.getProduct(id)
+                .orElseThrow(() -> new NotFoundException(
+                        "Product with ID " + id + " does not exist"));
+        // Check if product is already archived
+        if (!product.isActive()) {
+            throw new BadRequestException("Product is already archived");
+        }
+
+        internalProductService.toggleProductActiveState(product);
+        log.info("Product (ID: {}) has been archived", product.getId());
+    }
+
+    @PatchMapping("/{id}/unarchive")
+    public void handleUnarchiveProduct(@PathVariable Long id,
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
+        log.info("PATCH /internal/products/{}/unarchive", id);
+
+        if (!internalProductService.isAdmin(authHeader)) {
+            throw new ForbiddenException("User is not an admin");
+        }
+        // Check if product with ID exists
+        Product product = internalProductService.getProduct(id)
+                .orElseThrow(() -> new NotFoundException(
+                        "Product with ID " + id + " does not exist"));
+        // Check if product is already archived
+        if (product.isActive()) {
+            throw new BadRequestException("Product is not archived");
+        }
+
+        internalProductService.toggleProductActiveState(product);
+        log.info("Product (ID: {}) has been unarchived", product.getId());
+    }
 }

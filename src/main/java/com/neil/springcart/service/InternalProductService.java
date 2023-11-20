@@ -170,4 +170,14 @@ public class InternalProductService {
                 .filter(i -> i.getSize().equals(inventory.getSize()))
                 .findFirst();
     }
+
+    /**
+     * Toggles the active state of the given product (i.e. archives the product
+     * if it is active and vice versa).
+     * @param product The product being archived/unarchived.
+     */
+    @Transactional
+    public void toggleProductActiveState(Product product) {
+        product.setActive(!product.isActive());
+    }
 }
