@@ -124,7 +124,7 @@ public class JwtUtils {
      * @return A key.
      */
     private Key getSignInKey() {
-        String SECRET_KEY = environment.getProperty("jwt.secret-key");
+        String SECRET_KEY = environment.getProperty("jwt.key");
         byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
         return Keys.hmacShaKeyFor(keyBytes);
     }
