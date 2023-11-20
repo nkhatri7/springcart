@@ -27,6 +27,11 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         cache: maven
+
+    - name: Add Secrets
+      env:
+        JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+      run: echo "jwt.secret-key=$JWT_SECRET_KEY" >> src/main/resources/application.properties && echo "jwt.secret-key=$JWT_SECRET_KEY" >> src/test/resources/application.properties
         
     - name: Build and Test with Maven
       run: mvn -B clean verify
