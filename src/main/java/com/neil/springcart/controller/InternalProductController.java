@@ -1,6 +1,5 @@
 package com.neil.springcart.controller;
 
-import com.neil.springcart.dto.InventoryDto;
 import com.neil.springcart.dto.NewProductRequest;
 import com.neil.springcart.dto.UpdateProductInventoryRequest;
 import com.neil.springcart.dto.UpdateProductRequest;
@@ -15,8 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/internal/products")
@@ -42,7 +39,7 @@ public class InternalProductController {
         }
 
         Product product = internalProductService.createProduct(request);
-        log.info("Product with ID {} created", product.getId());
+        log.info("Product (ID: {}) created", product.getId());
     }
 
     /**
@@ -75,7 +72,7 @@ public class InternalProductController {
         }
 
         internalProductService.updateProduct(product, request);
-        log.info("Product with ID {} updated", id);
+        log.info("Product (ID: {}) updated", id);
     }
 
     /**
@@ -108,7 +105,7 @@ public class InternalProductController {
 
         internalProductService.updateProductInventory(product,
                 request.inventory());
-        log.info("Inventory for product with ID {} updated", id);
+        log.info("Inventory for product (ID: {}) updated", id);
     }
 
     @PatchMapping("/{id}/archive")
