@@ -15,6 +15,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * A controller to handle incoming requests for internal product requests (i.e.
+ * product and inventory management).
+ */
 @RestController
 @RequestMapping("/internal/products")
 @AllArgsConstructor
