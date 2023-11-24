@@ -73,27 +73,6 @@ public class CustomerAuthService extends RootAuthService {
                 .build();
     }
 
-//    /**
-//     * Generates a JWT token for the given Customer
-//     * @param customer A Customer object
-//     * @return A JWT token signed with the customer's credentials.
-//     */
-//    public String generateCustomerToken(Customer customer) {
-//        return jwtUtils.generateToken(customer);
-//    }
-//
-//    /**
-//     * Checks if the given raw password is the same as the given encrypted
-//     * password.
-//     * @param password The raw password.
-//     * @param encryptedPassword The encrypted password.
-//     * @return {@code true} if the raw password matches the encrypted password,
-//     * {@code false} otherwise.
-//     */
-//    public boolean isPasswordValid(String password, String encryptedPassword) {
-//        return passwordEncoder.matches(password, encryptedPassword);
-//    }
-
     /**
      * Maps the data from the given RegisterRequest object to a Customer object.
      * @param request The body of a request from the /register route.
