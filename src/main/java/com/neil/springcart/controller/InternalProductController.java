@@ -9,8 +9,6 @@ import com.neil.springcart.exception.NotFoundException;
 import com.neil.springcart.model.Product;
 import com.neil.springcart.service.InternalProductService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
