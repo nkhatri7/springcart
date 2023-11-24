@@ -5,12 +5,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 @Slf4j
 public class CustomExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<CustomErrorResponse> handleMethodArgumentException(
             MethodArgumentNotValidException ex) {
         CustomErrorResponse errorResponse = new CustomErrorResponse();
@@ -25,6 +27,7 @@ public class CustomExceptionHandler {
     }
 
     @ExceptionHandler(BadRequestException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<CustomErrorResponse> handleBadRequestException(
             BadRequestException ex) {
         CustomErrorResponse errorResponse = new CustomErrorResponse();
@@ -36,6 +39,7 @@ public class CustomExceptionHandler {
     }
 
     @ExceptionHandler(ForbiddenException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
     public ResponseEntity<CustomErrorResponse> handleForbiddenException(
             ForbiddenException ex) {
         CustomErrorResponse errorResponse = new CustomErrorResponse();
@@ -47,6 +51,7 @@ public class CustomExceptionHandler {
     }
 
     @ExceptionHandler(NotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<CustomErrorResponse> handleNotFoundException(
             NotFoundException ex) {
         CustomErrorResponse errorResponse = new CustomErrorResponse();
@@ -58,6 +63,7 @@ public class CustomExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<CustomErrorResponse> handleException(Exception ex) {
         CustomErrorResponse errorResponse = new CustomErrorResponse();
         errorResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
