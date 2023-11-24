@@ -26,6 +26,8 @@ public class InternalProductController {
      * Handles incoming requests to create a product in the database.
      * @param authHeader The Authorization header from the request.
      * @param request The request body.
+     * @throws ForbiddenException If the user making the request is not an
+     * admin.
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -77,7 +79,7 @@ public class InternalProductController {
 
     /**
      * Handles incoming requests to update product inventory.
-     * @param id THe ID of the product.
+     * @param id The ID of the product.
      * @param authHeader The Authorization header from the request.
      * @param request The request body.
      * @throws ForbiddenException If the user making the request is not an
@@ -86,6 +88,7 @@ public class InternalProductController {
      * @throws BadRequestException If the product with that ID is inactive.
      */
     @PatchMapping("/{id}/inventory")
+    @ResponseStatus(HttpStatus.OK)
     public void handleProductInventoryUpdate(@PathVariable Long id,
             @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader,
             @RequestBody UpdateProductInventoryRequest request) {
@@ -108,7 +111,18 @@ public class InternalProductController {
         log.info("Inventory for product (ID: {}) updated", id);
     }
 
+    /**
+     * Handles incoming requests to archive a product.
+     * @param id The ID of the product.
+     * @param authHeader The Authorization header from the request.
+     * @throws ForbiddenException If the user making the request is not an
+     * admin.
+     * @throws NotFoundException If a product with that ID does not exist.
+     * @throws BadRequestException If the product with that ID is already
+     * archived.
+     */
     @PatchMapping("/{id}/archive")
+    @ResponseStatus(HttpStatus.OK)
     public void handleArchiveProduct(@PathVariable Long id,
             @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
         log.info("PATCH /internal/products/{}/archive", id);
@@ -129,7 +143,17 @@ public class InternalProductController {
         log.info("Product (ID: {}) has been archived", product.getId());
     }
 
+    /**
+     * Handles incoming requests to unarchive a product.
+     * @param id The ID of the product.
+     * @param authHeader The Authorization header from the request.
+     * @throws ForbiddenException If the user making the request is not an
+     * admin.
+     * @throws NotFoundException If a product with that ID does not exist.
+     * @throws BadRequestException If the product with that ID is not archived.
+     */
     @PatchMapping("/{id}/unarchive")
+    @ResponseStatus(HttpStatus.OK)
     public void handleUnarchiveProduct(@PathVariable Long id,
             @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
         log.info("PATCH /internal/products/{}/unarchive", id);
