@@ -6,6 +6,7 @@ import com.neil.springcart.dto.RegisterRequest;
 import com.neil.springcart.exception.BadRequestException;
 import com.neil.springcart.model.Customer;
 import com.neil.springcart.service.CustomerAuthService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +38,7 @@ public class CustomerAuthController {
      * @throws BadRequestException If an account with the email from the request
      * already exists.
      */
+    @Operation(summary = "Creates a customer account")
     @PostMapping("/register")
     public ResponseEntity<CustomerResponse> handleCustomerRegistration(
             @RequestBody @Valid RegisterRequest registerRequest) {
@@ -66,6 +68,7 @@ public class CustomerAuthController {
      * @throws BadRequestException If the password from the request is
      * incorrect.
      */
+    @Operation(summary = "Authenticates a customer account")
     @PostMapping("/login")
     public ResponseEntity<CustomerResponse> handleLoginRequest(
             @RequestBody @Valid LoginRequest loginRequest) {

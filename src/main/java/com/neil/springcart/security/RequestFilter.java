@@ -17,6 +17,15 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class RequestFilter {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final AuthenticationProvider authenticationProvider;
+    private final String[] unauthenticatedPaths = {
+            "/api/v1/auth/register",
+            "/api/v1/auth/login",
+            "/internal/auth/login",
+            "/v3/api-docs",
+            "/v3/api-docs.*",
+            "/v3/api-docs/*",
+            "/swagger-ui/*",
+    };
 
     /**
      * Implements a security filter chain for incoming requests.
@@ -27,7 +36,7 @@ public class RequestFilter {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/auth/register", "/api/v1/auth/login", "/internal/auth/login").permitAll()
+                        .requestMatchers(unauthenticatedPaths).permitAll()
                         .anyRequest().authenticated()
                 )
                 .csrf(AbstractHttpConfigurer::disable)

@@ -5,6 +5,7 @@ import com.neil.springcart.dto.LoginRequest;
 import com.neil.springcart.exception.BadRequestException;
 import com.neil.springcart.model.Admin;
 import com.neil.springcart.service.InternalAuthService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +38,7 @@ public class InternalAuthController {
      * @throws BadRequestException If the password from the request is
      * incorrect.
      */
+    @Operation(summary = "Authenticates an admin account")
     @PostMapping("/login")
     public ResponseEntity<AdminAuthResponse> handleAdminLogin(
             @RequestBody @Valid LoginRequest loginRequest) {

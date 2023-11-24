@@ -8,6 +8,9 @@ import com.neil.springcart.exception.ForbiddenException;
 import com.neil.springcart.exception.NotFoundException;
 import com.neil.springcart.model.Product;
 import com.neil.springcart.service.InternalProductService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +36,7 @@ public class InternalProductController {
      * @throws ForbiddenException If the user making the request is not an
      * admin.
      */
+    @Operation(summary = "Creates a new product")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public void handleNewProduct(
@@ -58,6 +62,7 @@ public class InternalProductController {
      * @throws NotFoundException If a product with that ID does not exist.
      * @throws BadRequestException If the product with that ID is inactive.
      */
+    @Operation(summary = "Updates a product's details")
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public void handleProductUpdate(@PathVariable Long id,
@@ -91,6 +96,7 @@ public class InternalProductController {
      * @throws NotFoundException If a product with that ID does not exist.
      * @throws BadRequestException If the product with that ID is inactive.
      */
+    @Operation(summary = "Updates a product's inventory")
     @PatchMapping("/{id}/inventory")
     @ResponseStatus(HttpStatus.OK)
     public void handleProductInventoryUpdate(@PathVariable Long id,
@@ -125,6 +131,7 @@ public class InternalProductController {
      * @throws BadRequestException If the product with that ID is already
      * archived.
      */
+    @Operation(summary = "Archives a product")
     @PatchMapping("/{id}/archive")
     @ResponseStatus(HttpStatus.OK)
     public void handleArchiveProduct(@PathVariable Long id,
@@ -156,6 +163,7 @@ public class InternalProductController {
      * @throws NotFoundException If a product with that ID does not exist.
      * @throws BadRequestException If the product with that ID is not archived.
      */
+    @Operation(summary = "Unarchives a product")
     @PatchMapping("/{id}/unarchive")
     @ResponseStatus(HttpStatus.OK)
     public void handleUnarchiveProduct(@PathVariable Long id,
