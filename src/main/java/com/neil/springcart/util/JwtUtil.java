@@ -1,4 +1,4 @@
-package com.neil.springcart.security;
+package com.neil.springcart.util;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -17,12 +17,12 @@ import java.util.Map;
 import java.util.function.Function;
 
 /**
- * A service containing methods to generate and validate JWT tokens and to
+ * A utility class containing methods to generate and validate JWT tokens and to
  * get user information from JWT tokens.
  */
 @Component
 @AllArgsConstructor
-public class JwtUtils {
+public class JwtUtil {
     private final Environment environment;
 
     /**

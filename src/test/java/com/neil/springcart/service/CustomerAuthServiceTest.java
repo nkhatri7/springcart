@@ -1,10 +1,12 @@
 package com.neil.springcart.service;
 
-import com.neil.springcart.dto.CustomerResponse;
 import com.neil.springcart.dto.RegisterRequest;
 import com.neil.springcart.model.Customer;
 import com.neil.springcart.repository.CustomerRepository;
-import com.neil.springcart.security.JwtUtils;
+import com.neil.springcart.util.AuthUtil;
+import com.neil.springcart.util.JwtUtil;
+import com.neil.springcart.util.PasswordManager;
+import com.neil.springcart.util.mapper.CustomerRegistrationMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,11 +16,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.Optional;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 
@@ -28,19 +27,19 @@ class CustomerAuthServiceTest {
     @Mock
     private CustomerRepository customerRepository;
     @Mock
-    private PasswordEncoder passwordEncoder;
-    @Mock
-    private JwtUtils jwtUtils;
+    private PasswordManager passwordManager;
 
     @BeforeEach
     void setUp() {
-        customerAuthService = new CustomerAuthService(passwordEncoder, jwtUtils,
-                customerRepository);
+        CustomerRegistrationMapper customerRegistrationMapper =
+                new CustomerRegistrationMapper();
+        customerAuthService = new CustomerAuthService(customerRepository,
+                passwordManager, customerRegistrationMapper);
     }
 
     @AfterEach
     void tearDown() {
-        reset(customerRepository, passwordEncoder, jwtUtils);
+        reset(customerRepository, passwordManager);
     }
 
     @Test
@@ -105,74 +104,6 @@ class CustomerAuthServiceTest {
         Customer capturedCustomer = argumentCaptor.getValue();
         assertThat(capturedCustomer.getPassword()).isNotEqualTo(password);
         assertThat(capturedCustomer.getPassword())
-                .isEqualTo(passwordEncoder.encode(password));
-    }
-
-    @Test
-    void isEmailTaken_itShouldReturnTrueWhenACustomerExistsInTheDatabaseWithTheGivenEmail() {
-        // Given a customer account exists with test@gmail.com as the email
-        String email = "test@gmail.com";
-        Customer customer = createCustomerWithEmail(email);
-        given(customerRepository.findByEmail(email))
-                .willReturn(Optional.of(customer));
-        // When isEmailTaken() is called with test@gmail.com
-        boolean isEmailTaken = customerAuthService.isEmailTaken(email);
-        // Then it should return true
-        assertThat(isEmailTaken).isTrue();
-    }
-
-    @Test
-    void isEmailTaken_itShouldReturnFalseWhenACustomerDoesNotExistInTheDatabaseWithTheGivenEmail() {
-        // Given a customer account doesn't exist with test@gmail.com as the
-        // email
-        String email = "test@gmail.com";
-        given(customerRepository.findByEmail(email))
-                .willReturn(Optional.empty());
-        // When isEmailTaken() is called with test@gmail.com
-        boolean isEmailTaken = customerAuthService.isEmailTaken(email);
-        // Then it should return false
-        assertThat(isEmailTaken).isFalse();
-    }
-
-    @Test
-    void mapToCustomerResponse_itShouldHaveTheSameNameAsTheGivenCustomerObject() {
-        // Given a Customer object
-        String name = "name";
-        Customer customer = new Customer(1L, name, "email", "password");
-        // When mapToCustomerResponse() is called
-        CustomerResponse response = customerAuthService.mapToCustomerResponse(customer);
-        // Then the CustomerResponse object should have the same name as the
-        // given Customer object
-        assertThat(response.name()).isEqualTo(customer.getName());
-    }
-
-    @Test
-    void mapToCustomerResponse_itShouldHaveTheSameEmailAsTheGivenCustomerObject() {
-        // Given a Customer object
-        String email = "email";
-        Customer customer = new Customer(1L, "name", email, "password");
-        // When mapToCustomerResponse() is called
-        CustomerResponse response = customerAuthService
-                .mapToCustomerResponse(customer);
-        // Then the CustomerResponse object should have the same email as the
-        // given Customer object
-        assertThat(response.email()).isEqualTo(customer.getEmail());
-    }
-
-    @Test
-    void generateUserToken_itShouldCallGenerateTokenFromJwtUtils() {
-        // When generateCustomerToken() is called
-        Customer customer = new Customer(1L, "name", "email", "password");
-        customerAuthService.generateUserToken(customer);
-        // Then JwtUtils' generateToken() is called
-        verify(jwtUtils).generateToken(customer);
-    }
-
-    private Customer createCustomerWithEmail(String email) {
-        return Customer.builder()
-                .name("test")
-                .email(email)
-                .password("password")
-                .build();
+                .isEqualTo(passwordManager.encryptPassword(password));
     }
 }

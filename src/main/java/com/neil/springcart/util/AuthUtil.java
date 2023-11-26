@@ -1,5 +1,6 @@
 package com.neil.springcart.util;
 
+import com.neil.springcart.exception.UnauthenticatedException;
 import com.neil.springcart.model.Admin;
 import com.neil.springcart.repository.AdminRepository;
 import lombok.AllArgsConstructor;
@@ -21,15 +22,24 @@ public class AuthUtil {
      * otherwise.
      */
     public boolean isAdmin() {
+        String email = getUserEmail();
+        return isAnAdminEmail(email);
+    }
+
+    /**
+     * Gets the email of the user making the request.
+     * @return The email of the user making the request.
+     */
+    private String getUserEmail() {
         Authentication authentication = SecurityContextHolder
                 .getContext()
                 .getAuthentication();
         Object principal = authentication.getPrincipal();
         if (principal instanceof UserDetails user) {
-            String email = user.getUsername();
-            return isAnAdminEmail(email);
+            return user.getUsername();
+        } else {
+            throw new UnauthenticatedException("User is not authenticated");
         }
-        return false;
     }
 
     /**

@@ -3,9 +3,11 @@ package com.neil.springcart.controller;
 import com.neil.springcart.dto.CustomerResponse;
 import com.neil.springcart.dto.LoginRequest;
 import com.neil.springcart.dto.RegisterRequest;
-import com.neil.springcart.exception.BadRequestException;
 import com.neil.springcart.model.Customer;
 import com.neil.springcart.service.CustomerAuthService;
+import com.neil.springcart.util.HttpUtil;
+import com.neil.springcart.util.JwtUtil;
+import com.neil.springcart.util.mapper.CustomerMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -28,68 +30,56 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class CustomerAuthController {
     private final CustomerAuthService customerAuthService;
+    private final HttpUtil httpUtil;
+    private final JwtUtil jwtUtil;
+    private final CustomerMapper customerMapper;
 
     /**
      * Handles incoming requests for the /register endpoint which registers a
      * new customer in the system.
-     * @param registerRequest The request body.
+     * @param request The request body.
      * @return The new user data with a JWT token for the customer creating an
      * account.
-     * @throws BadRequestException If an account with the email from the request
-     * already exists.
      */
     @Operation(summary = "Creates a customer account")
     @PostMapping("/register")
     public ResponseEntity<CustomerResponse> handleCustomerRegistration(
-            @RequestBody @Valid RegisterRequest registerRequest) {
+            @RequestBody @Valid RegisterRequest request) {
         log.info("POST /api/v1/auth/register");
-        if (customerAuthService.isEmailTaken(registerRequest.email().trim())) {
-            throw new BadRequestException("Account with email already exists");
-        }
-        Customer customer = customerAuthService.createCustomer(registerRequest);
-        String token = customerAuthService.generateUserToken(customer);
-        HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.set(HttpHeaders.AUTHORIZATION, "Bearer " + token);
-        CustomerResponse customerResponse = customerAuthService
-                .mapToCustomerResponse(customer);
+
+        Customer customer = customerAuthService.createCustomer(request);
+        log.info("Customer created in database");
+        String token = jwtUtil.generateToken(customer);
+
+        HttpHeaders headers = httpUtil.generateAuthorizationHeader(token);
+        CustomerResponse response = customerMapper.mapToResponse(customer);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .headers(responseHeaders)
-                .body(customerResponse);
+                .headers(headers)
+                .body(response);
     }
 
     /**
      * Handles incoming requests for the /login endpoint which authenticates an
      * existing customer.
-     * @param loginRequest The request body.
+     * @param request The request body.
      * @return The customer data with a JWT token in the header.
-     * @throws BadRequestException If an account with the email from the request
-     * doesn't exist.
-     * @throws BadRequestException If the password from the request is
-     * incorrect.
      */
     @Operation(summary = "Authenticates a customer account")
     @PostMapping("/login")
     public ResponseEntity<CustomerResponse> handleLoginRequest(
-            @RequestBody @Valid LoginRequest loginRequest) {
+            @RequestBody @Valid LoginRequest request) {
         log.info("POST /api/v1/auth/login");
-        // Check if account with email exists
-        Customer customer = customerAuthService
-                .getCustomerByEmail(loginRequest.email())
-                .orElseThrow(() -> new BadRequestException(
-                        "Account with this email doesn't exist"));
-        if (!customerAuthService.isPasswordValid(loginRequest.password(),
-                customer.getPassword())) {
-            throw new BadRequestException("Password is incorrect");
-        }
-        String token = customerAuthService.generateUserToken(customer);
-        HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.set(HttpHeaders.AUTHORIZATION, "Bearer " + token);
-        CustomerResponse response = customerAuthService
-                .mapToCustomerResponse(customer);
+
+        Customer customer = customerAuthService.authenticateCustomer(request);
+        log.info("Customer signed in (ID: {})", customer.getId());
+        String token = jwtUtil.generateToken(customer);
+
+        HttpHeaders headers = httpUtil.generateAuthorizationHeader(token);
+        CustomerResponse response = customerMapper.mapToResponse(customer);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .headers(responseHeaders)
+                .headers(headers)
                 .body(response);
     }
 }

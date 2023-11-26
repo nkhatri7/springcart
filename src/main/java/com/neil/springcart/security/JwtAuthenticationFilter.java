@@ -1,5 +1,6 @@
 package com.neil.springcart.security;
 
+import com.neil.springcart.util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,7 +25,7 @@ import java.io.IOException;
 @Component
 @AllArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    private final JwtUtils jwtUtils;
+    private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
 
     /**
@@ -46,14 +47,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
         final String jwt = authHeader.substring(7);
-        final String userEmail = jwtUtils.extractUsername(jwt);
+        final String userEmail = jwtUtil.extractUsername(jwt);
         Authentication authentication = SecurityContextHolder
                 .getContext()
                 .getAuthentication();
         if (userEmail != null && authentication == null) {
             UserDetails userDetails = this.userDetailsService
                     .loadUserByUsername(userEmail);
-            if (jwtUtils.isTokenValid(jwt, userDetails)) {
+            if (jwtUtil.isTokenValid(jwt, userDetails)) {
                 setRequestAuthentication(userDetails, request);
             }
         }

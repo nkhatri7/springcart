@@ -2,9 +2,11 @@ package com.neil.springcart.controller;
 
 import com.neil.springcart.dto.AdminAuthResponse;
 import com.neil.springcart.dto.LoginRequest;
-import com.neil.springcart.exception.BadRequestException;
 import com.neil.springcart.model.Admin;
 import com.neil.springcart.service.InternalAuthService;
+import com.neil.springcart.util.HttpUtil;
+import com.neil.springcart.util.JwtUtil;
+import com.neil.springcart.util.mapper.AdminMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -27,40 +29,32 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class InternalAuthController {
     private final InternalAuthService internalAuthService;
+    private final HttpUtil httpUtil;
+    private final JwtUtil jwtUtil;
+    private final AdminMapper adminMapper;
 
     /**
      * Handles incoming requests for the internal /login endpoint which
      * authenticates an admin user.
-     * @param loginRequest The request body.
+     * @param request The request body.
      * @return The admin details with a JWT token in the header.
-     * @throws BadRequestException If an account with the email from the request
-     * doesn't exist.
-     * @throws BadRequestException If the password from the request is
      * incorrect.
      */
     @Operation(summary = "Authenticates an admin account")
     @PostMapping("/login")
     public ResponseEntity<AdminAuthResponse> handleAdminLogin(
-            @RequestBody @Valid LoginRequest loginRequest) {
+            @RequestBody @Valid LoginRequest request) {
         log.info("POST /internal/auth/login");
-        // Check if account with email exists
-        Admin admin = internalAuthService.getAdminByEmail(loginRequest.email())
-                .orElseThrow(() -> new BadRequestException(
-                        "Account with this email doesn't exist"));
-        // Verify password
-        if (!internalAuthService.isPasswordValid(loginRequest.password(),
-                admin.getPassword())) {
-            throw new BadRequestException("Password is incorrect");
-        }
-        // Generate token and response
-        String token = internalAuthService.generateUserToken(admin);
-        HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.set(HttpHeaders.AUTHORIZATION, "Bearer " + token);
-        AdminAuthResponse response = internalAuthService
-                .mapToAdminAuthResponse(admin);
+
+        Admin admin = internalAuthService.authenticateAdmin(request);
+        log.info("Admin signed in (ID: {})", admin.getId());
+        String token = jwtUtil.generateToken(admin);
+
+        HttpHeaders headers = httpUtil.generateAuthorizationHeader(token);
+        AdminAuthResponse response = adminMapper.mapToResponse(admin);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .headers(responseHeaders)
+                .headers(headers)
                 .body(response);
     }
 }

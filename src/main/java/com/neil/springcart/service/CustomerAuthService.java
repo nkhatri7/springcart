@@ -1,43 +1,42 @@
 package com.neil.springcart.service;
 
+import com.neil.springcart.dto.LoginRequest;
+import com.neil.springcart.exception.BadRequestException;
 import com.neil.springcart.repository.CustomerRepository;
-import com.neil.springcart.dto.CustomerResponse;
 import com.neil.springcart.dto.RegisterRequest;
 import com.neil.springcart.model.Customer;
-import com.neil.springcart.security.JwtUtils;
+import com.neil.springcart.util.PasswordManager;
+import com.neil.springcart.util.mapper.CustomerRegistrationMapper;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 @Service
+@AllArgsConstructor
 @Slf4j
-public class CustomerAuthService extends RootAuthService {
-    @Autowired
+public class CustomerAuthService {
     private final CustomerRepository customerRepository;
-
-    public CustomerAuthService(PasswordEncoder passwordEncoder,
-                               JwtUtils jwtUtils,
-                               CustomerRepository customerRepository) {
-        super(passwordEncoder, jwtUtils);
-        this.customerRepository = customerRepository;
-    }
+    private final PasswordManager passwordManager;
+    private final CustomerRegistrationMapper customerRegistrationMapper;
 
     /**
      * Creates a customer in the database with the data from the request.
      * @param request The body of a request from the /register route.
      * @return A Customer object with an ID and data from the request.
+     * @throws BadRequestException If an account with the email from the request
+     * already exists.
      */
     public Customer createCustomer(RegisterRequest request) {
-        Customer customer = getCustomerFromRegisterRequest(request);
-        // Encrypt received password
-        String encryptedPassword = encryptPassword(request.password().trim());
-        customer.setPassword(encryptedPassword);
-        Customer savedCustomer = customerRepository.save(customer);
-        log.info("Customer created in database");
-        return savedCustomer;
+        if (isEmailTaken(request.email().trim())) {
+            throw new BadRequestException("Account with email already exists");
+        }
+        String rawPassword = request.password().trim();
+        String encryptedPassword = passwordManager.encryptPassword(rawPassword);
+        Customer customer = customerRegistrationMapper.mapToCustomer(request,
+                encryptedPassword);
+        return customerRepository.save(customer);
     }
 
     /**
@@ -45,10 +44,31 @@ public class CustomerAuthService extends RootAuthService {
      * @param email The email of a customer.
      * @return {@code true} if the email is taken, {@code false} if it is not.
      */
-    public boolean isEmailTaken(String email) {
+    private boolean isEmailTaken(String email) {
         Optional<Customer> existingCustomer = customerRepository
                 .findByEmail(email);
         return existingCustomer.isPresent();
+    }
+
+    /**
+     * Checks if the email and password of the customer are valid.
+     * @param request The LoginRequest containing the user email and password.
+     * @return The customer data if the login details are valid.
+     * @throws BadRequestException If an account with the email from the request
+     * doesn't exist or if the password is invalid.
+     */
+    public Customer authenticateCustomer(LoginRequest request) {
+        // Check if customer with email exists
+        String email = request.email().trim();
+        Customer customer = getCustomerByEmail(email).orElseThrow(() ->
+            new BadRequestException("Account with this email doesn't exist")
+        );
+        // Check if password is valid
+        String password = request.password().trim();
+        if (!passwordManager.isPasswordValid(password, customer.getPassword())) {
+            throw new BadRequestException("Password is incorrect");
+        }
+        return customer;
     }
 
     /**
@@ -56,33 +76,7 @@ public class CustomerAuthService extends RootAuthService {
      * @param email The email of a customer.
      * @return A Customer if one exists with that email, otherwise it is empty.
      */
-    public Optional<Customer> getCustomerByEmail(String email) {
+    private Optional<Customer> getCustomerByEmail(String email) {
         return customerRepository.findByEmail(email);
-    }
-
-    /**
-     * Maps the given Customer object to a CustomerResponse object.
-     * @param customer The Customer object to be converted to CustomerResponse.
-     * @return A CustomerResponse object with the name and email from the
-     * Customer object.
-     */
-    public CustomerResponse mapToCustomerResponse(Customer customer) {
-        return CustomerResponse.builder()
-                .name(customer.getName())
-                .email(customer.getEmail())
-                .build();
-    }
-
-    /**
-     * Maps the data from the given RegisterRequest object to a Customer object.
-     * @param request The body of a request from the /register route.
-     * @return A Customer object with the data from the RegisterRequest object.
-     */
-    private Customer getCustomerFromRegisterRequest(
-            RegisterRequest request) {
-        return Customer.builder()
-                .name(request.name().trim())
-                .email(request.email().trim())
-                .build();
     }
 }

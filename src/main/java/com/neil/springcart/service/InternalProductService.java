@@ -7,6 +7,8 @@ import com.neil.springcart.model.Inventory;
 import com.neil.springcart.model.Product;
 import com.neil.springcart.repository.InventoryRepository;
 import com.neil.springcart.repository.ProductRepository;
+import com.neil.springcart.util.mapper.InventoryMapper;
+import com.neil.springcart.util.mapper.NewProductMapper;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,8 @@ import java.util.Optional;
 public class InternalProductService {
     private final ProductRepository productRepository;
     private final InventoryRepository inventoryRepository;
+    private final NewProductMapper newProductMapper;
+    private final InventoryMapper inventoryMapper;
 
     /**
      * Saves a product with the details from the request in the database.
@@ -26,38 +30,8 @@ public class InternalProductService {
      * @return The created product.
      */
     public Product createProduct(NewProductRequest request) {
-        Product product = mapNewProductRequestToProduct(request);
+        Product product = newProductMapper.mapToProduct(request);
         return productRepository.save(product);
-    }
-
-    private Product mapNewProductRequestToProduct(NewProductRequest request) {
-        Product product = Product.builder()
-                .brand(request.brand().trim())
-                .name(request.name().trim())
-                .description(request.description().trim())
-                .category(request.category())
-                .gender(request.gender())
-                .isActive(true)
-                .build();
-        addInventoryToProduct(request.inventory(), product);
-        return product;
-    }
-
-    private void addInventoryToProduct(List<InventoryDto> inventoryDtoList,
-                                       Product product) {
-        List<Inventory> inventoryList = inventoryDtoList.stream()
-                .map(dto -> mapInventoryDtoToInventory(dto, product))
-                .toList();
-        product.setInventoryList(inventoryList);
-    }
-
-    private Inventory mapInventoryDtoToInventory(InventoryDto inventoryDto,
-                                                 Product product) {
-        return Inventory.builder()
-                .product(product)
-                .size(inventoryDto.size())
-                .stock(inventoryDto.stock())
-                .build();
     }
 
     /**
@@ -112,7 +86,7 @@ public class InternalProductService {
         List<Inventory> productInventory = inventoryRepository
                 .findInventoryByProduct(product.getId());
         List<Inventory> inventoryList = inventoryDtoList.stream()
-                .map(dto -> mapInventoryDtoToInventory(dto, product))
+                .map(dto -> inventoryMapper.mapToInventory(dto, product))
                 .toList();
         for (Inventory inventory : inventoryList) {
             saveInventoryItem(inventory, productInventory);

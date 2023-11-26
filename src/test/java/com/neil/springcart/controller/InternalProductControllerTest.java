@@ -10,7 +10,7 @@ import com.neil.springcart.repository.AdminRepository;
 import com.neil.springcart.repository.CustomerRepository;
 import com.neil.springcart.repository.InventoryRepository;
 import com.neil.springcart.repository.ProductRepository;
-import com.neil.springcart.security.JwtUtils;
+import com.neil.springcart.util.JwtUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +47,7 @@ class InternalProductControllerTest {
     @Autowired
     private InventoryRepository inventoryRepository;
     @Autowired
-    private JwtUtils jwtUtils;
+    private JwtUtil jwtUtils;
 
     @AfterEach
     void tearDown() {

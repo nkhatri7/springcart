@@ -1,25 +1,13 @@
-package com.neil.springcart.service;
+package com.neil.springcart.util;
 
-import com.neil.springcart.security.JwtUtils;
 import lombok.AllArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-@Service
+@Component
 @AllArgsConstructor
-public class RootAuthService {
+public class PasswordManager {
     private final PasswordEncoder passwordEncoder;
-    private final JwtUtils jwtUtils;
-
-    /**
-     * Generates a JWT token for the given user
-     * @param user A UserDetails implementation (e.g. Customer or Admin)
-     * @return A JWT token signed with the user's credentials.
-     */
-    public String generateUserToken(UserDetails user) {
-        return jwtUtils.generateToken(user);
-    }
 
     /**
      * Checks if the given raw password is the same as the given encrypted

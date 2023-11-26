@@ -6,6 +6,8 @@ import com.neil.springcart.dto.UpdateProductRequest;
 import com.neil.springcart.model.*;
 import com.neil.springcart.repository.InventoryRepository;
 import com.neil.springcart.repository.ProductRepository;
+import com.neil.springcart.util.mapper.InventoryMapper;
+import com.neil.springcart.util.mapper.NewProductMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,8 +36,11 @@ class InternalProductServiceTest {
 
     @BeforeEach
     void setUp() {
+        InventoryMapper inventoryMapper = new InventoryMapper();
+        NewProductMapper newProductMapper = new NewProductMapper(
+                inventoryMapper);
         internalProductService = new InternalProductService(productRepository,
-                inventoryRepository);
+                inventoryRepository, newProductMapper, inventoryMapper);
     }
 
     @AfterEach
