@@ -4,10 +4,8 @@ import com.neil.springcart.dto.InventoryDto;
 import com.neil.springcart.dto.NewProductRequest;
 import com.neil.springcart.dto.UpdateProductRequest;
 import com.neil.springcart.model.*;
-import com.neil.springcart.repository.AdminRepository;
 import com.neil.springcart.repository.InventoryRepository;
 import com.neil.springcart.repository.ProductRepository;
-import com.neil.springcart.security.JwtUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,7 +17,6 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,45 +31,16 @@ class InternalProductServiceTest {
     private ProductRepository productRepository;
     @Mock
     private InventoryRepository inventoryRepository;
-    @Mock
-    private AdminRepository adminRepository;
-    @Mock
-    private JwtUtils jwtUtils;
 
     @BeforeEach
     void setUp() {
         internalProductService = new InternalProductService(productRepository,
-                inventoryRepository, adminRepository, jwtUtils);
+                inventoryRepository);
     }
 
     @AfterEach
     void tearDown() {
-        reset(productRepository, inventoryRepository, adminRepository,
-                jwtUtils);
-    }
-
-    @Test
-    void isAdminReturnsTrueWhenTokenIsLinkedToAdminAccount() {
-        // Given the token is linked to an admin account
-        String email = "admin@springcart.com";
-        Admin admin = createAdmin(email);
-        given(adminRepository.findByEmail(email))
-                .willReturn(Optional.of(admin));
-        String token = "token";
-        given(jwtUtils.extractUsername(token)).willReturn(admin.getUsername());
-        String authHeader = "Bearer " + token;
-        // Then isAdmin() will return true
-        assertThat(internalProductService.isAdmin(authHeader)).isTrue();
-    }
-
-    @Test
-    void isAdminReturnsFalseWhenTokenIsNotLinkedToAdminAccount() {
-        // Given the token is not linked to an admin account
-        String token = "token";
-        given(jwtUtils.extractUsername(token)).willReturn("notanadmin");
-        String authHeader = "Bearer " + token;
-        // Then isAdmin() will return true
-        assertThat(internalProductService.isAdmin(authHeader)).isFalse();
+        reset(productRepository, inventoryRepository);
     }
 
     @Test

@@ -3,13 +3,10 @@ package com.neil.springcart.service;
 import com.neil.springcart.dto.InventoryDto;
 import com.neil.springcart.dto.NewProductRequest;
 import com.neil.springcart.dto.UpdateProductRequest;
-import com.neil.springcart.model.Admin;
 import com.neil.springcart.model.Inventory;
 import com.neil.springcart.model.Product;
-import com.neil.springcart.repository.AdminRepository;
 import com.neil.springcart.repository.InventoryRepository;
 import com.neil.springcart.repository.ProductRepository;
-import com.neil.springcart.security.JwtUtils;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,21 +19,6 @@ import java.util.Optional;
 public class InternalProductService {
     private final ProductRepository productRepository;
     private final InventoryRepository inventoryRepository;
-    private final AdminRepository adminRepository;
-    private final JwtUtils jwtUtils;
-
-    /**
-     * Checks if the user making the request is an admin.
-     * @param authHeader The Authorization header value from the request.
-     * @return {@code true} if the request is from an admin, {@code false}
-     * otherwise.
-     */
-    public boolean isAdmin(String authHeader) {
-        String authToken = authHeader.substring(7);
-        String email = jwtUtils.extractUsername(authToken);
-        Optional<Admin> admin = adminRepository.findByEmail(email);
-        return admin.isPresent();
-    }
 
     /**
      * Saves a product with the details from the request in the database.

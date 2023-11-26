@@ -8,11 +8,11 @@ import com.neil.springcart.exception.ForbiddenException;
 import com.neil.springcart.exception.NotFoundException;
 import com.neil.springcart.model.Product;
 import com.neil.springcart.service.InternalProductService;
+import com.neil.springcart.util.AuthUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,10 +26,10 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class InternalProductController {
     private final InternalProductService internalProductService;
+    private final AuthUtil authUtil;
 
     /**
      * Handles incoming requests to create a product in the database.
-     * @param authHeader The Authorization header from the request.
      * @param request The request body.
      * @throws ForbiddenException If the user making the request is not an
      * admin.
@@ -38,21 +38,19 @@ public class InternalProductController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public void handleNewProduct(
-            @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader,
             @RequestBody @Valid NewProductRequest request) {
         log.info("POST /internal/products");
 
-        if (!internalProductService.isAdmin(authHeader)) {
+        if (!authUtil.isAdmin()) {
             throw new ForbiddenException("User is not an admin");
         }
 
         Product product = internalProductService.createProduct(request);
-        log.info("Product (ID: {}) created", product.getId());
+        log.info("Product created (ID: {})", product.getId());
     }
 
     /**
      * Handles incoming requests to update product details.
-     * @param authHeader The Authorization header from the request.
      * @param id The ID of the product.
      * @param request The request body.
      * @throws ForbiddenException If the user making the request is not an
@@ -64,11 +62,10 @@ public class InternalProductController {
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public void handleProductUpdate(@PathVariable Long id,
-            @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader,
             @RequestBody UpdateProductRequest request) {
         log.info("PATCH /internal/products/{}", id);
 
-        if (!internalProductService.isAdmin(authHeader)) {
+        if (!authUtil.isAdmin()) {
             throw new ForbiddenException("User is not an admin");
         }
         // Check if product with ID exists
@@ -81,13 +78,12 @@ public class InternalProductController {
         }
 
         internalProductService.updateProduct(product, request);
-        log.info("Product (ID: {}) updated", id);
+        log.info("Product updated (ID: {})", id);
     }
 
     /**
      * Handles incoming requests to update product inventory.
      * @param id The ID of the product.
-     * @param authHeader The Authorization header from the request.
      * @param request The request body.
      * @throws ForbiddenException If the user making the request is not an
      * admin.
@@ -98,11 +94,10 @@ public class InternalProductController {
     @PatchMapping("/{id}/inventory")
     @ResponseStatus(HttpStatus.OK)
     public void handleProductInventoryUpdate(@PathVariable Long id,
-            @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader,
             @RequestBody UpdateProductInventoryRequest request) {
         log.info("PATCH /internal/products/{}/inventory", id);
 
-        if (!internalProductService.isAdmin(authHeader)) {
+        if (!authUtil.isAdmin()) {
             throw new ForbiddenException("User is not an admin");
         }
         // Check if product with ID exists
@@ -116,13 +111,12 @@ public class InternalProductController {
 
         internalProductService.updateProductInventory(product,
                 request.inventory());
-        log.info("Inventory for product (ID: {}) updated", id);
+        log.info("Product inventory updated (ID: {})", id);
     }
 
     /**
      * Handles incoming requests to archive a product.
      * @param id The ID of the product.
-     * @param authHeader The Authorization header from the request.
      * @throws ForbiddenException If the user making the request is not an
      * admin.
      * @throws NotFoundException If a product with that ID does not exist.
@@ -132,11 +126,10 @@ public class InternalProductController {
     @Operation(summary = "Archives a product")
     @PatchMapping("/{id}/archive")
     @ResponseStatus(HttpStatus.OK)
-    public void handleArchiveProduct(@PathVariable Long id,
-            @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
+    public void handleArchiveProduct(@PathVariable Long id) {
         log.info("PATCH /internal/products/{}/archive", id);
 
-        if (!internalProductService.isAdmin(authHeader)) {
+        if (!authUtil.isAdmin()) {
             throw new ForbiddenException("User is not an admin");
         }
         // Check if product with ID exists
@@ -149,13 +142,12 @@ public class InternalProductController {
         }
 
         internalProductService.toggleProductActiveState(product);
-        log.info("Product (ID: {}) has been archived", product.getId());
+        log.info("Product archived (ID: {})", product.getId());
     }
 
     /**
      * Handles incoming requests to unarchive a product.
      * @param id The ID of the product.
-     * @param authHeader The Authorization header from the request.
      * @throws ForbiddenException If the user making the request is not an
      * admin.
      * @throws NotFoundException If a product with that ID does not exist.
@@ -164,11 +156,10 @@ public class InternalProductController {
     @Operation(summary = "Unarchives a product")
     @PatchMapping("/{id}/unarchive")
     @ResponseStatus(HttpStatus.OK)
-    public void handleUnarchiveProduct(@PathVariable Long id,
-            @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
+    public void handleUnarchiveProduct(@PathVariable Long id) {
         log.info("PATCH /internal/products/{}/unarchive", id);
 
-        if (!internalProductService.isAdmin(authHeader)) {
+        if (!authUtil.isAdmin()) {
             throw new ForbiddenException("User is not an admin");
         }
         // Check if product with ID exists
@@ -181,6 +172,6 @@ public class InternalProductController {
         }
 
         internalProductService.toggleProductActiveState(product);
-        log.info("Product (ID: {}) has been unarchived", product.getId());
+        log.info("Product unarchived (ID: {})", product.getId());
     }
 }
