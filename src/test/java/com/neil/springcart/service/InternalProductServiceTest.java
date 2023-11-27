@@ -19,6 +19,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -64,8 +65,10 @@ class InternalProductServiceTest {
         Product product = buildProduct(oldName, "description");
         UpdateProductRequest request = buildUpdateProductRequestWithName(
                 newName);
+        given(productRepository.findById(product.getId()))
+                .willReturn(Optional.of(product));
         // When updateProduct() is called
-        internalProductService.updateProduct(product, request);
+        internalProductService.updateProduct(product.getId(), request);
         // Then the product name is changed
         assertThat(product.getName()).isEqualTo(newName);
     }
@@ -79,8 +82,10 @@ class InternalProductServiceTest {
         Product product = buildProduct("name", oldDescription);
         UpdateProductRequest request = buildUpdateProductRequestWithDescription(
                 newDescription);
+        given(productRepository.findById(product.getId()))
+                .willReturn(Optional.of(product));
         // When updateProduct() is called
-        internalProductService.updateProduct(product, request);
+        internalProductService.updateProduct(product.getId(), request);
         // Then the product description is changed
         assertThat(product.getDescription()).isEqualTo(newDescription);
     }
@@ -92,8 +97,10 @@ class InternalProductServiceTest {
         String description = "description";
         Product product = buildProduct(name, description);
         UpdateProductRequest request = UpdateProductRequest.builder().build();
+        given(productRepository.findById(product.getId()))
+                .willReturn(Optional.of(product));
         // When updateProduct() is called
-        internalProductService.updateProduct(product, request);
+        internalProductService.updateProduct(product.getId(), request);
         // Then nothing is changed
         assertThat(product.getName()).isEqualTo(name);
         assertThat(product.getDescription()).isEqualTo(description);
@@ -106,6 +113,8 @@ class InternalProductServiceTest {
         List<Inventory> productInventory = List.of(
             buildInventory(ProductSize.S, 10, product)
         );
+        given(productRepository.findById(product.getId()))
+                .willReturn(Optional.of(product));
         given(inventoryRepository.findInventoryByProduct(product.getId()))
                 .willReturn(productInventory);
         List<InventoryDto> inventoryDtoList = List.of(
@@ -113,7 +122,7 @@ class InternalProductServiceTest {
             new InventoryDto(ProductSize.M, 20)
         );
         // When updateProductInventory() is called
-        internalProductService.updateProductInventory(product,
+        internalProductService.updateProductInventory(product.getId(),
                 inventoryDtoList);
         // Then the new size is added to the database
         ArgumentCaptor<Inventory> argumentCaptor = ArgumentCaptor.forClass(
@@ -124,23 +133,27 @@ class InternalProductServiceTest {
     }
 
     @Test
-    void toggleProductActiveStateArchivesTheProductIfItIsNotArchived() {
+    void archiveProductArchivesTheProduct() {
         // Given a product is not archived
         Product product = buildProduct("name", "description");
-        // When toggleProductActiveState() is called
-        internalProductService.toggleProductActiveState(product);
-        // Then product will be archived
+        given(productRepository.findById(product.getId()))
+                .willReturn(Optional.of(product));
+        // When archiveProduct() is called
+        internalProductService.archiveProduct(product.getId());
+        // Then the product will be archived
         assertThat(product.isActive()).isFalse();
     }
 
     @Test
-    void toggleProductActiveStateUnarchivesTheProductIfItIsArchived() {
+    void unarchiveProductUnarchivesTheProduct() {
         // Given a product is archived
         Product product = buildProduct("name", "description");
         product.setActive(false);
-        // When toggleProductActiveState() is called
-        internalProductService.toggleProductActiveState(product);
-        // Then product will be unarchived
+        given(productRepository.findById(product.getId()))
+                .willReturn(Optional.of(product));
+        // When archiveProduct() is called
+        internalProductService.unarchiveProduct(product.getId());
+        // Then the product will be unarchived
         assertThat(product.isActive()).isTrue();
     }
 

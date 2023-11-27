@@ -38,7 +38,6 @@ public class InternalAuthController {
      * authenticates an admin user.
      * @param request The request body.
      * @return The admin details with a JWT token in the header.
-     * incorrect.
      */
     @Operation(summary = "Authenticates an admin account")
     @PostMapping("/login")

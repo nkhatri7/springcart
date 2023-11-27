@@ -3,8 +3,6 @@ package com.neil.springcart.service;
 import com.neil.springcart.dto.RegisterRequest;
 import com.neil.springcart.model.Customer;
 import com.neil.springcart.repository.CustomerRepository;
-import com.neil.springcart.util.AuthUtil;
-import com.neil.springcart.util.JwtUtil;
 import com.neil.springcart.util.PasswordManager;
 import com.neil.springcart.util.mapper.CustomerRegistrationMapper;
 import org.junit.jupiter.api.AfterEach;
@@ -14,7 +12,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;

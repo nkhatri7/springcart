@@ -65,7 +65,8 @@ public class CustomerAuthService {
         );
         // Check if password is valid
         String password = request.password().trim();
-        if (!passwordManager.isPasswordValid(password, customer.getPassword())) {
+        String customerPassword = customer.getPassword();
+        if (!passwordManager.isPasswordValid(password, customerPassword)) {
             throw new BadRequestException("Password is incorrect");
         }
         return customer;

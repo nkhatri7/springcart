@@ -48,7 +48,7 @@ public class CustomerAuthController {
         log.info("POST /api/v1/auth/register");
 
         Customer customer = customerAuthService.createCustomer(request);
-        log.info("Customer created in database");
+        log.info("Customer created (ID: {})", customer.getId());
         String token = jwtUtil.generateToken(customer);
 
         HttpHeaders headers = httpUtil.generateAuthorizationHeader(token);

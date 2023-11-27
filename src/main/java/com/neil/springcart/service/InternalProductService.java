@@ -3,6 +3,8 @@ package com.neil.springcart.service;
 import com.neil.springcart.dto.InventoryDto;
 import com.neil.springcart.dto.NewProductRequest;
 import com.neil.springcart.dto.UpdateProductRequest;
+import com.neil.springcart.exception.BadRequestException;
+import com.neil.springcart.exception.NotFoundException;
 import com.neil.springcart.model.Inventory;
 import com.neil.springcart.model.Product;
 import com.neil.springcart.repository.InventoryRepository;
@@ -37,21 +39,41 @@ public class InternalProductService {
     /**
      * Gets the product with the given ID from the database if one exists.
      * @param id The ID of the product.
-     * @return An optional product object which is empty is a product with the
-     * given ID does not exist.
+     * @return The product data for the product with the given ID if it exists.
+     * @throws NotFoundException If a product with the given ID doesn't exist.
      */
-    public Optional<Product> getProduct(Long id) {
-        return productRepository.findById(id);
+    private Product getProduct(Long id) {
+        return productRepository.findById(id).orElseThrow(() ->
+                new NotFoundException("Product with ID " + id + " does not exist")
+        );
+    }
+
+    /**
+     * Gets the product with the given ID from the database if it exists and if
+     * it's active.
+     * @param id The ID of the product.
+     * @return The product data for the product with the given ID if it exists
+     * and is active.
+     * @throws BadRequestException If the product with the given ID isn't
+     * active.
+     */
+    private Product getActiveProduct(Long id) {
+        Product product = getProduct(id);
+        if (!product.isActive()) {
+            throw new BadRequestException("Product is not active");
+        }
+        return product;
     }
 
     /**
      * Updates product details for the given product with data from the given
      * request.
-     * @param product The product being updated.
+     * @param productId the ID of the product to be updated.
      * @param request The updated data.
      */
     @Transactional
-    public void updateProduct(Product product, UpdateProductRequest request) {
+    public void updateProduct(Long productId, UpdateProductRequest request) {
+        Product product = getActiveProduct(productId);
         if (request.name() != null && canUpdateValue(product.getName(),
                 request.name())) {
             product.setName(request.name().trim());
@@ -78,11 +100,13 @@ public class InternalProductService {
 
     /**
      * Updates the inventory for the given product in the database.
-     * @param product The product of which the inventory should be updated for.
+     * @param productId The product ID of which the inventory should be updated
+     * for.
      * @param inventoryDtoList The updated inventory data.
      */
-    public void updateProductInventory(Product product,
+    public void updateProductInventory(Long productId,
                                        List<InventoryDto> inventoryDtoList) {
+        Product product = getActiveProduct(productId);
         List<Inventory> productInventory = inventoryRepository
                 .findInventoryByProduct(product.getId());
         List<Inventory> inventoryList = inventoryDtoList.stream()
@@ -128,12 +152,30 @@ public class InternalProductService {
     }
 
     /**
-     * Toggles the active state of the given product (i.e. archives the product
-     * if it is active and vice versa).
-     * @param product The product being archived/unarchived.
+     * Archives a product.
+     * @param productId The ID of the product.
+     * @throws BadRequestException If the product is already archived.
      */
     @Transactional
-    public void toggleProductActiveState(Product product) {
-        product.setActive(!product.isActive());
+    public void archiveProduct(Long productId) {
+        Product product = getProduct(productId);
+        if (!product.isActive()) {
+            throw new BadRequestException("Product is already archived");
+        }
+        product.setActive(false);
+    }
+
+    /**
+     * Unarchives a product.
+     * @param productId The ID of the product.
+     * @throws BadRequestException If the product is already active.
+     */
+    @Transactional
+    public void unarchiveProduct(Long productId) {
+        Product product = getProduct(productId);
+        if (product.isActive()) {
+            throw new BadRequestException("Product is already active");
+        }
+        product.setActive(true);
     }
 }
