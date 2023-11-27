@@ -19,6 +19,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -58,6 +59,7 @@ class InternalProductControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = { "ADMIN" })
     void handleNewProductCreatesProductInDatabase() throws Exception {
         // When a request is coming from an admin and their JWT token
         Admin admin = createAdmin();
@@ -97,6 +99,7 @@ class InternalProductControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = { "ADMIN" })
     void handleUpdateProductUpdatesProductNameAndDescription()
             throws Exception {
         // When a request is coming from and admin and their JWT token
@@ -129,6 +132,7 @@ class InternalProductControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = { "ADMIN" })
     void handleUpdateProductInventoryUpdatesInventory() throws Exception {
         // When a request is coming from an admin and their JWT token
         Admin admin = createAdmin();
@@ -165,6 +169,7 @@ class InternalProductControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = { "ADMIN" })
     void handleArchiveProductArchivesProduct() throws Exception {
         // When a request is coming from an admin and their JWT token and
         // the product is not archived
@@ -185,6 +190,7 @@ class InternalProductControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = { "ADMIN" })
     void handleUnarchiveProductUnarchivesProduct() throws Exception {
         // When a request is coming from an admin and their JWT token and
         // the product is archived
