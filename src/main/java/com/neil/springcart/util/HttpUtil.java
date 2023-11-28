@@ -18,7 +18,7 @@ public class HttpUtil {
      */
     public HttpHeaders generateAuthorizationHeader(String token) {
         HttpHeaders headers = new HttpHeaders();
-        headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + token);
+        headers.setBearerAuth(token);
         return headers;
     }
 }
