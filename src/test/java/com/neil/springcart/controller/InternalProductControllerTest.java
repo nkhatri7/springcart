@@ -59,7 +59,7 @@ class InternalProductControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = { "ADMIN" })
+    @WithMockUser(authorities = { "ADMIN" })
     void handleNewProductCreatesProductInDatabase() throws Exception {
         // When a request is coming from an admin and their JWT token
         Admin admin = createAdmin();
@@ -99,7 +99,7 @@ class InternalProductControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = { "ADMIN" })
+    @WithMockUser(authorities = { "ADMIN" })
     void handleUpdateProductUpdatesProductNameAndDescription()
             throws Exception {
         // When a request is coming from and admin and their JWT token
@@ -132,7 +132,7 @@ class InternalProductControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = { "ADMIN" })
+    @WithMockUser(authorities = { "ADMIN" })
     void handleUpdateProductInventoryUpdatesInventory() throws Exception {
         // When a request is coming from an admin and their JWT token
         Admin admin = createAdmin();
@@ -169,7 +169,7 @@ class InternalProductControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = { "ADMIN" })
+    @WithMockUser(authorities = { "ADMIN" })
     void handleArchiveProductArchivesProduct() throws Exception {
         // When a request is coming from an admin and their JWT token and
         // the product is not archived
@@ -190,7 +190,7 @@ class InternalProductControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = { "ADMIN" })
+    @WithMockUser(authorities = { "ADMIN" })
     void handleUnarchiveProductUnarchivesProduct() throws Exception {
         // When a request is coming from an admin and their JWT token and
         // the product is archived
