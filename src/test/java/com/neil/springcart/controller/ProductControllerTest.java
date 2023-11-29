@@ -95,22 +95,37 @@ class ProductControllerTest {
                 .andExpect(jsonPath("$.length()").value(1));
     }
 
-    private void saveProduct(String name, ProductGender gender,
+    @Test
+    void getProductReturnsProductDetailsIfAProductWithTheIdExists() throws Exception {
+        // Given a product with ID 1 exists
+        Product product = saveProduct("product", true);
+        String token = getToken();
+        HttpHeaders headers = httpUtil.generateAuthorizationHeader(token);
+        // When a request is made with the product ID
+        // Then the product details are returned
+        String endpoint = "/api/v1/products/" + product.getId();
+        mockMvc.perform(MockMvcRequestBuilders.get(endpoint).headers(headers))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.brand").value(product.getBrand()))
+                .andExpect(jsonPath("$.name").value(product.getName()));
+    }
+
+    private Product saveProduct(String name, ProductGender gender,
                              ProductCategory category) {
         Product product = buildProduct(name, gender, category, true);
-        productRepository.save(product);
+        return productRepository.save(product);
     }
 
-    private void saveProduct(String name, ProductGender gender) {
+    private Product saveProduct(String name, ProductGender gender) {
         Product product = buildProduct(name, gender, ProductCategory.SPORTSWEAR,
                 true);
-        productRepository.save(product);
+        return productRepository.save(product);
     }
 
-    private void saveProduct(String name, boolean isActive) {
+    private Product saveProduct(String name, boolean isActive) {
         Product product = buildProduct(name, ProductGender.UNISEX,
                 ProductCategory.SPORTSWEAR, isActive);
-        productRepository.save(product);
+        return productRepository.save(product);
     }
 
     private Product buildProduct(String name, ProductGender gender,
