@@ -15,4 +15,11 @@ public class InventoryMapper {
                 .stock(inventoryDto.stock())
                 .build();
     }
+
+    public InventoryDto mapToDto(Inventory inventory) {
+        return InventoryDto.builder()
+                .size(inventory.getSize())
+                .stock(inventory.getStock())
+                .build();
+    }
 }

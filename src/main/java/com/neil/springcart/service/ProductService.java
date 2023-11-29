@@ -1,6 +1,8 @@
 package com.neil.springcart.service;
 
+import com.neil.springcart.dto.DetailedProductResponse;
 import com.neil.springcart.dto.ProductResponse;
+import com.neil.springcart.exception.NotFoundException;
 import com.neil.springcart.model.Product;
 import com.neil.springcart.model.ProductCategory;
 import com.neil.springcart.model.ProductGender;
@@ -40,6 +42,12 @@ public class ProductService {
         return productMapper.mapListToResponse(products);
     }
 
+    /**
+     * Gets all active products for the given gender and category.
+     * @param gender The gender of the products.
+     * @param category The category of the products.
+     * @return A list of products for the given gender and category
+     */
     public List<ProductResponse> getProductsByGenderAndCategory(
             ProductGender gender, ProductCategory category) {
         List<Product> products = productRepository
@@ -47,5 +55,19 @@ public class ProductService {
         log.info("{} active {} {} products found", products.size(), gender,
                 category);
         return productMapper.mapListToResponse(products);
+    }
+
+    /**
+     * Gets the product with the given ID.
+     * @param id The ID of the product.
+     * @return The product with the given ID if it exists.
+     * @throws NotFoundException If a product with the given ID doesn't exist.
+     */
+    public DetailedProductResponse getProductById(Long id) {
+        Product product = productRepository.findById(id).orElseThrow(() ->
+            new NotFoundException("Product with ID" + id + " doesn't exist")
+        );
+        log.info("Product (ID: {}) retrieved from database", product.getId());
+        return productMapper.mapToDetailedResponse(product);
     }
 }

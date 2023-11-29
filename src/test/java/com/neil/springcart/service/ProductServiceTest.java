@@ -1,10 +1,13 @@
 package com.neil.springcart.service;
 
+import com.neil.springcart.dto.DetailedProductResponse;
 import com.neil.springcart.dto.ProductResponse;
+import com.neil.springcart.exception.NotFoundException;
 import com.neil.springcart.model.Product;
 import com.neil.springcart.model.ProductCategory;
 import com.neil.springcart.model.ProductGender;
 import com.neil.springcart.repository.ProductRepository;
+import com.neil.springcart.util.mapper.InventoryMapper;
 import com.neil.springcart.util.mapper.ProductMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,9 +19,11 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.reset;
 
@@ -31,7 +36,8 @@ class ProductServiceTest {
 
     @BeforeEach
     void setUp() {
-        ProductMapper productMapper = new ProductMapper();
+        InventoryMapper inventoryMapper = new InventoryMapper();
+        ProductMapper productMapper = new ProductMapper(inventoryMapper);
         productService = new ProductService(productRepository, productMapper);
     }
 
@@ -104,6 +110,30 @@ class ProductServiceTest {
                 .getProductsByGenderAndCategory(gender, category);
         // Then one product is returned
         assertThat(products.size()).isEqualTo(1);
+    }
+
+    @Test
+    void getProductByIdReturnsTheProductIfItExists() {
+        // Given a product with ID 1 exists
+        Long id = 1L;
+        Product product = buildProduct(id, "product");
+        given(productRepository.findById(id)).willReturn(Optional.of(product));
+        // When getProductById() is called with 1
+        DetailedProductResponse productResponse = productService
+                .getProductById(id);
+        // Then a product is returned
+        assertThat(productResponse).isNotNull();
+    }
+
+    @Test
+    void getProductByIdThrowsAnErrorIfNoProductWithTheGivenIdExists() {
+        // Given a product with ID 1 doesn't exist
+        Long id = 1L;
+        // When getProductById() is called with 1
+        // Then a NotFoundException is thrown
+        assertThrows(NotFoundException.class, () -> {
+           productService.getProductById(id);
+        });
     }
 
     private Product buildProductWithGenderAndCategory(Long id, String name,

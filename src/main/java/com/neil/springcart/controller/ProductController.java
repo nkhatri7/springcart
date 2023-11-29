@@ -1,5 +1,6 @@
 package com.neil.springcart.controller;
 
+import com.neil.springcart.dto.DetailedProductResponse;
 import com.neil.springcart.dto.ProductResponse;
 import com.neil.springcart.model.ProductCategory;
 import com.neil.springcart.model.ProductGender;
@@ -52,7 +53,9 @@ public class ProductController {
      * category.
      * @return A list of all the active products for a gender and category.
      */
-    @Operation(summary = "Gets all the active products for a gender")
+    @Operation(
+            summary = "Gets all the active products for a gender and category"
+    )
     @GetMapping(params = { "gender", "category" })
     @ResponseStatus(HttpStatus.OK)
     public List<ProductResponse> getProductsByGenderAndCategory(
@@ -61,5 +64,18 @@ public class ProductController {
         log.info("GET /api/v1/products?gender={}&category={}", gender,
                 category);
         return productService.getProductsByGenderAndCategory(gender, category);
+    }
+
+    /**
+     * Handles incoming requests to get the product with the given ID.
+     * @param id The ID of the product.
+     * @return The data for the product with the given ID.
+     */
+    @Operation(summary = "Gets the product data for the product with the ID")
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public DetailedProductResponse getProduct(@PathVariable Long id) {
+        log.info("GET /api/v1/products/{}", id);
+        return productService.getProductById(id);
     }
 }
