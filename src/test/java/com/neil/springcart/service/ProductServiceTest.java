@@ -89,7 +89,33 @@ class ProductServiceTest {
         assertThat(products.size()).isEqualTo(1);
     }
 
-    private Product buildProductWithGender(Long id, String name, ProductGender gender) {
+    @Test
+    void getProductsByGenderAndCategoryShouldReturnOneProductIfThereIsOneProductWithTheGivenGenderAndCategory() {
+        // Given there is one MALE SPORTSWEAR product
+        ProductGender gender = ProductGender.MALE;
+        ProductCategory category = ProductCategory.SPORTSWEAR;
+        Product product = buildProductWithGenderAndCategory(1L,
+                "male sportswear product", gender, category);
+        given(productRepository.findProductsByGenderAndCategory(
+                gender, category)).willReturn(List.of(product));
+        // When getProductsByGenderAndCategory() is called with MALE and
+        // SPORTSWEAR
+        List<ProductResponse> products = productService
+                .getProductsByGenderAndCategory(gender, category);
+        // Then one product is returned
+        assertThat(products.size()).isEqualTo(1);
+    }
+
+    private Product buildProductWithGenderAndCategory(Long id, String name,
+                                                      ProductGender gender,
+                                                      ProductCategory category) {
+        Product product = buildProductWithGender(id, name, gender);
+        product.setCategory(category);
+        return product;
+    }
+
+    private Product buildProductWithGender(Long id, String name,
+                                           ProductGender gender) {
         Product product = buildProduct(id, name);
         product.setGender(gender);
         return product;

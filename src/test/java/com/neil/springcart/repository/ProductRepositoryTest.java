@@ -73,29 +73,54 @@ class ProductRepositoryTest {
         ProductGender gender = ProductGender.MALE;
         saveProduct("male product", gender);
         saveProduct("unisex product", ProductGender.UNISEX);
-        // When findProductsById() is called with MALE
+        // When findProductsByGender() is called with MALE
         List<Product> products = productRepository.findProductsByGender(gender);
         // Then two products will be returned
         assertThat(products.size()).isEqualTo(2);
     }
 
+    @Test
+    void findProductsByGenderAndCategoryShouldReturnOneProductIfThereIsOneProductWithTheGivenGenderAndCategory() {
+        // Given there are two products with one being MALE and SPORTSWEAR
+        // and the other being FEMALE and SPORTSWEAR
+        ProductGender gender = ProductGender.MALE;
+        ProductCategory category = ProductCategory.SPORTSWEAR;
+        saveProduct("male sportswear product", gender, category);
+        saveProduct("female sportswear product", ProductGender.FEMALE,
+                category);
+        // When findProductsByGenderAndCategory() is called with MALE and
+        // SPORTSWEAR
+        List<Product> products = productRepository
+                .findProductsByGenderAndCategory(gender, category);
+        // Then one product will be returned
+        assertThat(products.size()).isEqualTo(1);
+    }
+
+    private void saveProduct(String name, ProductGender gender,
+                             ProductCategory category) {
+        Product product = buildProduct(name, gender, category, true);
+        productRepository.save(product);
+    }
+
     private void saveProduct(String name, ProductGender gender) {
-        Product product = buildProduct(name, gender, true);
+        Product product = buildProduct(name, gender, ProductCategory.SPORTSWEAR,
+                true);
         productRepository.save(product);
     }
 
     private void saveProduct(String name, boolean isActive) {
-        Product product = buildProduct(name, ProductGender.UNISEX, isActive);
+        Product product = buildProduct(name, ProductGender.UNISEX,
+                ProductCategory.SPORTSWEAR, isActive);
         productRepository.save(product);
     }
 
     private Product buildProduct(String name, ProductGender gender,
-                                 boolean isActive) {
+                                 ProductCategory category, boolean isActive) {
         return Product.builder()
                 .brand("brand")
                 .name(name)
                 .description("description")
-                .category(ProductCategory.SPORTSWEAR)
+                .category(category)
                 .gender(gender)
                 .isActive(isActive)
                 .inventoryList(new ArrayList<>())

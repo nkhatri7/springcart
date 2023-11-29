@@ -2,6 +2,7 @@ package com.neil.springcart.service;
 
 import com.neil.springcart.dto.ProductResponse;
 import com.neil.springcart.model.Product;
+import com.neil.springcart.model.ProductCategory;
 import com.neil.springcart.model.ProductGender;
 import com.neil.springcart.repository.ProductRepository;
 import com.neil.springcart.util.mapper.ProductMapper;
@@ -28,9 +29,23 @@ public class ProductService {
         return productMapper.mapListToResponse(products);
     }
 
+    /**
+     * Gets all active products for the given gender.
+     * @param gender The gender of the products.
+     * @return A list of products for the given gender.
+     */
     public List<ProductResponse> getProductsByGender(ProductGender gender) {
         List<Product> products = productRepository.findProductsByGender(gender);
         log.info("{} active {} products found", products.size(), gender);
+        return productMapper.mapListToResponse(products);
+    }
+
+    public List<ProductResponse> getProductsByGenderAndCategory(
+            ProductGender gender, ProductCategory category) {
+        List<Product> products = productRepository
+                .findProductsByGenderAndCategory(gender, category);
+        log.info("{} active {} {} products found", products.size(), gender,
+                category);
         return productMapper.mapListToResponse(products);
     }
 }

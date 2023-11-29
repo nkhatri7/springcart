@@ -1,6 +1,7 @@
 package com.neil.springcart.controller;
 
 import com.neil.springcart.dto.ProductResponse;
+import com.neil.springcart.model.ProductCategory;
 import com.neil.springcart.model.ProductGender;
 import com.neil.springcart.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -44,5 +45,21 @@ public class ProductController {
             @RequestParam ProductGender gender) {
         log.info("GET /api/v1/products?gender={}", gender);
         return productService.getProductsByGender(gender);
+    }
+
+    /**
+     * Handles incoming requests to get all active products for a gender and
+     * category.
+     * @return A list of all the active products for a gender and category.
+     */
+    @Operation(summary = "Gets all the active products for a gender")
+    @GetMapping(params = { "gender", "category" })
+    @ResponseStatus(HttpStatus.OK)
+    public List<ProductResponse> getProductsByGenderAndCategory(
+            @RequestParam ProductGender gender,
+            @RequestParam ProductCategory category) {
+        log.info("GET /api/v1/products?gender={}&category={}", gender,
+                category);
+        return productService.getProductsByGenderAndCategory(gender, category);
     }
 }
