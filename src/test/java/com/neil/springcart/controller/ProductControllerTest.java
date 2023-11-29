@@ -50,7 +50,7 @@ class ProductControllerTest {
         saveProduct("product 2", true);
         String token = getToken();
         HttpHeaders headers = httpUtil.generateAuthorizationHeader(token);
-        // When a request is made
+        // When a request is made, then one product is returned
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/products")
                 .headers(headers))
                 .andExpect(status().isOk())
@@ -58,18 +58,41 @@ class ProductControllerTest {
                 .andExpect(jsonPath("$.length()").value(1));
     }
 
-    private void saveProduct(String name, boolean isActive) {
-        Product product = buildProduct(name, isActive);
+    @Test
+    void getAllProductsByGenderReturnsOneProductIfThereIsOneProductForTheGivenGender() throws Exception {
+        // Given there are 2 products and one of them is MALE
+        ProductGender gender = ProductGender.MALE;
+        saveProduct("male product", gender);
+        saveProduct("female product", ProductGender.FEMALE);
+        String token = getToken();
+        HttpHeaders headers = httpUtil.generateAuthorizationHeader(token);
+        // When a request is made with the gender being specified as MALE
+        // Then one product is returned
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/products?gender=" + gender)
+                        .headers(headers))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(1));
+    }
+
+    private void saveProduct(String name, ProductGender gender) {
+        Product product = buildProduct(name, gender, true);
         productRepository.save(product);
     }
 
-    private Product buildProduct(String name, boolean isActive) {
+    private void saveProduct(String name, boolean isActive) {
+        Product product = buildProduct(name, ProductGender.UNISEX, isActive);
+        productRepository.save(product);
+    }
+
+    private Product buildProduct(String name, ProductGender gender,
+                                 boolean isActive) {
         return Product.builder()
                 .brand("brand")
                 .name(name)
                 .description("description")
                 .category(ProductCategory.SPORTSWEAR)
-                .gender(ProductGender.UNISEX)
+                .gender(gender)
                 .isActive(isActive)
                 .inventoryList(new ArrayList<>())
                 .build();
