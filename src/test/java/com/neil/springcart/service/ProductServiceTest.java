@@ -62,6 +62,39 @@ class ProductServiceTest {
         assertThat(products.size()).isEqualTo(1);
     }
 
+    @Test
+    void getProductsByGenderShouldReturnAnEmptyListIfThereAreNoProductsForTheGivenGender() {
+        // Given there are no MALE products
+        ProductGender gender = ProductGender.MALE;
+        given(productRepository.findProductsByGender(gender))
+                .willReturn(new ArrayList<>());
+        // When getProductsByGender() is called with MALE
+        List<ProductResponse> products = productService
+                .getProductsByGender(gender);
+        // Then an empty list will be returned
+        assertThat(products.isEmpty()).isTrue();
+    }
+
+    @Test
+    void getProductsByGenderShouldReturnOneProductIfThereIsOneProductForTheGivenGender() {
+        // Given there is one MALE product
+        ProductGender gender = ProductGender.MALE;
+        Product product = buildProductWithGender(1L, "male product", gender);
+        given(productRepository.findProductsByGender(gender))
+                .willReturn(List.of(product));
+        // When getProductsByGender() is called with MALE
+        List<ProductResponse> products = productService
+                .getProductsByGender(gender);
+        // Then one product is returned
+        assertThat(products.size()).isEqualTo(1);
+    }
+
+    private Product buildProductWithGender(Long id, String name, ProductGender gender) {
+        Product product = buildProduct(id, name);
+        product.setGender(gender);
+        return product;
+    }
+
     private Product buildProduct(Long id, String name) {
         return Product.builder()
                 .id(id)
