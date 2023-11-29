@@ -59,7 +59,7 @@ class ProductControllerTest {
     }
 
     @Test
-    void getAllProductsByGenderReturnsOneProductIfThereIsOneProductForTheGivenGender() throws Exception {
+    void getProductsByGenderReturnsOneProductIfThereIsOneProductForTheGivenGender() throws Exception {
         // Given there are 2 products and one of them is MALE
         ProductGender gender = ProductGender.MALE;
         saveProduct("male product", gender);
@@ -68,30 +68,58 @@ class ProductControllerTest {
         HttpHeaders headers = httpUtil.generateAuthorizationHeader(token);
         // When a request is made with the gender being specified as MALE
         // Then one product is returned
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/products?gender=" + gender)
-                        .headers(headers))
+        String endpoint = "/api/v1/products?gender=" + gender;
+        mockMvc.perform(MockMvcRequestBuilders.get(endpoint).headers(headers))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(1));
     }
 
+    @Test
+    void getProductsByGenderAndCategoryReturnsOneProductIfThereIsOneProductForTheGivenGenderAndCategory() throws Exception {
+        // Given there are 2 products and one of them is MALE and SPORTSWEAR
+        ProductGender gender = ProductGender.MALE;
+        ProductCategory category = ProductCategory.SPORTSWEAR;
+        saveProduct("male product", gender, category);
+        saveProduct("female product", ProductGender.FEMALE, category);
+        String token = getToken();
+        HttpHeaders headers = httpUtil.generateAuthorizationHeader(token);
+        // When a request is made with the gender being specified as MALE and
+        // the category being specified as SPORTSWEAR
+        // Then one product is returned
+        String endpoint = "/api/v1/products?gender=" + gender + "&category="
+                + category;
+        mockMvc.perform(MockMvcRequestBuilders.get(endpoint).headers(headers))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(1));
+    }
+
+    private void saveProduct(String name, ProductGender gender,
+                             ProductCategory category) {
+        Product product = buildProduct(name, gender, category, true);
+        productRepository.save(product);
+    }
+
     private void saveProduct(String name, ProductGender gender) {
-        Product product = buildProduct(name, gender, true);
+        Product product = buildProduct(name, gender, ProductCategory.SPORTSWEAR,
+                true);
         productRepository.save(product);
     }
 
     private void saveProduct(String name, boolean isActive) {
-        Product product = buildProduct(name, ProductGender.UNISEX, isActive);
+        Product product = buildProduct(name, ProductGender.UNISEX,
+                ProductCategory.SPORTSWEAR, isActive);
         productRepository.save(product);
     }
 
     private Product buildProduct(String name, ProductGender gender,
-                                 boolean isActive) {
+                                 ProductCategory category, boolean isActive) {
         return Product.builder()
                 .brand("brand")
                 .name(name)
                 .description("description")
-                .category(ProductCategory.SPORTSWEAR)
+                .category(category)
                 .gender(gender)
                 .isActive(isActive)
                 .inventoryList(new ArrayList<>())
