@@ -1,5 +1,6 @@
 package com.neil.springcart.exception;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -85,6 +86,18 @@ public class CustomExceptionHandler {
         errorResponse.setMessage(ex.getMessage());
 
         log.error("Forbidden Exception: " + ex.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ResponseEntity<CustomErrorResponse> handleExpiredJwtException(
+            ExpiredJwtException ex) {
+        CustomErrorResponse errorResponse = new CustomErrorResponse();
+        errorResponse.setStatus(HttpStatus.FORBIDDEN.value());
+        errorResponse.setMessage("Token is expired");
+
+        log.error("Expired JWT Exception: " + ex.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
     }
 

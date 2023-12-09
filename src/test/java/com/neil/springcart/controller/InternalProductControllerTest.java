@@ -1,9 +1,9 @@
 package com.neil.springcart.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.neil.springcart.dto.AddInventoryRequest;
 import com.neil.springcart.dto.InventoryDto;
 import com.neil.springcart.dto.NewProductRequest;
-import com.neil.springcart.dto.UpdateProductInventoryRequest;
 import com.neil.springcart.dto.UpdateProductRequest;
 import com.neil.springcart.model.*;
 import com.neil.springcart.repository.AdminRepository;
@@ -77,7 +77,7 @@ class InternalProductControllerTest {
                         .andExpect(status().isCreated());
         assertThat(productRepository.findAll().size()).isEqualTo(1);
         assertThat(inventoryRepository.findAll().size())
-                .isEqualTo(request.inventory().size());
+                .isEqualTo(getTotalStock(request));
     }
 
     @Test
@@ -133,39 +133,37 @@ class InternalProductControllerTest {
 
     @Test
     @WithMockUser(authorities = { "ADMIN" })
-    void handleUpdateProductInventoryUpdatesInventory() throws Exception {
+    void handleAddInventoryUpdatesProductInventory() throws Exception {
         // When a request is coming from an admin and their JWT token
+        // with the product already having 2 items of inventory and adding 40
+        // more
         Admin admin = createAdmin();
         String token = generateUserToken(admin);
-        List<Inventory> productInventory = List.of(
-                buildInventory(ProductSize.S, 10)
+        List<InventoryItem> productInventoryItem = List.of(
+                buildInventory(ProductSize.S),
+                buildInventory(ProductSize.M)
         );
         Product product = saveProductToDb("name", "description",
-                productInventory);
+                productInventoryItem);
         List<InventoryDto> inventoryDtoList = List.of(
                 new InventoryDto(ProductSize.S, 20),
                 new InventoryDto(ProductSize.M, 20)
         );
-        UpdateProductInventoryRequest request =
-                new UpdateProductInventoryRequest(inventoryDtoList);
+        AddInventoryRequest request = new AddInventoryRequest(inventoryDtoList);
         String requestJson = objectMapper.writeValueAsString(request);
         HttpHeaders requestHeaders = new HttpHeaders();
         requestHeaders.set(HttpHeaders.AUTHORIZATION, "Bearer " + token);
         // Then a 200 status is returned with the product inventory being
-        // updated
+        // updated to 42 total items
         mockMvc.perform(MockMvcRequestBuilders
-                        .patch("/internal/products/" + product.getId() + "/inventory")
+                        .post("/internal/products/" + product.getId() + "/inventory")
                         .contentType(MediaType.APPLICATION_JSON)
                         .headers(requestHeaders)
                         .content(requestJson))
                         .andExpect(status().isOk());
-        List<Inventory> updatedInventory = inventoryRepository
+        List<InventoryItem> productInventory = inventoryRepository
                 .findInventoryByProduct(product.getId());
-        assertThat(updatedInventory.size()).isEqualTo(inventoryDtoList.size());
-        Inventory smallInventory = updatedInventory.get(0);
-        assertThat(smallInventory.getStock()).isEqualTo(20);
-        Inventory mediumInventory = updatedInventory.get(1);
-        assertThat(mediumInventory.getStock()).isEqualTo(20);
+        assertThat(productInventory.size()).isEqualTo(42);
     }
 
     @Test
@@ -261,8 +259,8 @@ class InternalProductControllerTest {
     }
 
     private Product saveProductToDb(String name, String description,
-                                    List<Inventory> inventoryList) {
-        Product product = buildProduct(name, description, inventoryList, true);
+                                    List<InventoryItem> inventoryItemList) {
+        Product product = buildProduct(name, description, inventoryItemList, true);
         return productRepository.save(product);
     }
 
@@ -274,7 +272,7 @@ class InternalProductControllerTest {
     }
 
     private Product buildProduct(String name, String description,
-                                 List<Inventory> inventoryList,
+                                 List<InventoryItem> inventory,
                                  boolean isActive) {
         Product product = Product.builder()
                 .name(name)
@@ -284,17 +282,23 @@ class InternalProductControllerTest {
                 .gender(ProductGender.MALE)
                 .isActive(isActive)
                 .build();
-        for (Inventory inventory : inventoryList) {
-            inventory.setProduct(product);
+        for (InventoryItem inventoryItem : inventory) {
+            inventoryItem.setProduct(product);
         }
-        product.setInventoryList(inventoryList);
+        product.setInventory(inventory);
         return product;
     }
 
-    private Inventory buildInventory(ProductSize size, int stock) {
-        return Inventory.builder()
+    private InventoryItem buildInventory(ProductSize size) {
+        return InventoryItem.builder()
                 .size(size)
-                .stock(stock)
+                .isSold(false)
                 .build();
+    }
+
+    private int getTotalStock(NewProductRequest request) {
+        return request.inventory().stream()
+                .mapToInt(InventoryDto::stock)
+                .sum();
     }
 }

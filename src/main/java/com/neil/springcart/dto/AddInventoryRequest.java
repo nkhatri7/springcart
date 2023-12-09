@@ -4,6 +4,6 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
-public record UpdateProductInventoryRequest(
+public record AddInventoryRequest(
         @NotNull List<InventoryDto> inventory
 ) {}

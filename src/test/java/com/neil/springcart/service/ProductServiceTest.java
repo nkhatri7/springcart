@@ -161,7 +161,7 @@ class ProductServiceTest {
                 .gender(ProductGender.UNISEX)
                 .category(ProductCategory.SPORTSWEAR)
                 .isActive(true)
-                .inventoryList(new ArrayList<>())
+                .inventory(new ArrayList<>())
                 .build();
     }
 }

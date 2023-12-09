@@ -123,7 +123,7 @@ class ProductRepositoryTest {
                 .category(category)
                 .gender(gender)
                 .isActive(isActive)
-                .inventoryList(new ArrayList<>())
+                .inventory(new ArrayList<>())
                 .build();
     }
 }

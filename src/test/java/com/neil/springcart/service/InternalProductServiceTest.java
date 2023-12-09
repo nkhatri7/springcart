@@ -1,5 +1,6 @@
 package com.neil.springcart.service;
 
+import com.neil.springcart.dto.AddInventoryRequest;
 import com.neil.springcart.dto.InventoryDto;
 import com.neil.springcart.dto.NewProductRequest;
 import com.neil.springcart.dto.UpdateProductRequest;
@@ -37,9 +38,8 @@ class InternalProductServiceTest {
 
     @BeforeEach
     void setUp() {
+        NewProductMapper newProductMapper = new NewProductMapper();
         InventoryMapper inventoryMapper = new InventoryMapper();
-        NewProductMapper newProductMapper = new NewProductMapper(
-                inventoryMapper);
         internalProductService = new InternalProductService(productRepository,
                 inventoryRepository, newProductMapper, inventoryMapper);
     }
@@ -54,6 +54,26 @@ class InternalProductServiceTest {
         NewProductRequest request = buildNewProductRequest(new ArrayList<>());
         internalProductService.createProduct(request);
         verify(productRepository, times(1)).save(any());
+    }
+
+    @Test
+    void addProductInventorySavesTenInventoryItemsWhenThereAreTenItemsInTheRequest() {
+        // Given the add inventory request has 10 stock items
+        AddInventoryRequest request = new AddInventoryRequest(List.of(
+                new InventoryDto(ProductSize.S, 10)
+        ));
+        Long productId = 1L;
+        Product product = buildProduct("name", "description");
+        given(productRepository.findById(productId))
+                .willReturn(Optional.of(product));
+        // When addProductInventory() is called
+        internalProductService.addProductInventory(productId, request);
+        // Then 10 inventory items are saved
+        ArgumentCaptor<List<InventoryItem>> argumentCaptor = ArgumentCaptor
+                .forClass(List.class);
+        verify(inventoryRepository).saveAll(argumentCaptor.capture());
+        List<InventoryItem> inventory = argumentCaptor.getValue();
+        assertThat(inventory.size()).isEqualTo(10);
     }
 
     @Test
@@ -107,32 +127,6 @@ class InternalProductServiceTest {
     }
 
     @Test
-    void updateProductInventoryCreatesNewInventoryItemIfInventoryListHasNewInventorySize() {
-        // Given the new updated inventory list has a new size
-        Product product = buildProduct("name", "description");
-        List<Inventory> productInventory = List.of(
-            buildInventory(ProductSize.S, 10, product)
-        );
-        given(productRepository.findById(product.getId()))
-                .willReturn(Optional.of(product));
-        given(inventoryRepository.findInventoryByProduct(product.getId()))
-                .willReturn(productInventory);
-        List<InventoryDto> inventoryDtoList = List.of(
-            new InventoryDto(ProductSize.S, 20),
-            new InventoryDto(ProductSize.M, 20)
-        );
-        // When updateProductInventory() is called
-        internalProductService.updateProductInventory(product.getId(),
-                inventoryDtoList);
-        // Then the new size is added to the database
-        ArgumentCaptor<Inventory> argumentCaptor = ArgumentCaptor.forClass(
-                Inventory.class);
-        verify(inventoryRepository).save(argumentCaptor.capture());
-        Inventory capturedInventory = argumentCaptor.getValue();
-        assertThat(capturedInventory.getSize()).isEqualTo(ProductSize.M);
-    }
-
-    @Test
     void archiveProductArchivesTheProduct() {
         // Given a product is not archived
         Product product = buildProduct("name", "description");
@@ -167,7 +161,7 @@ class InternalProductServiceTest {
                 .category(ProductCategory.SPORTSWEAR)
                 .gender(ProductGender.MALE)
                 .isActive(true)
-                .inventoryList(new ArrayList<>())
+                .inventory(new ArrayList<>())
                 .build();
     }
 
@@ -192,22 +186,6 @@ class InternalProductServiceTest {
                 .category(ProductCategory.SPORTSWEAR)
                 .gender(ProductGender.MALE)
                 .inventory(inventoryList)
-                .build();
-    }
-
-    private Admin createAdmin(String email) {
-        return Admin.builder()
-                .email(email)
-                .password("password")
-                .build();
-    }
-
-    private Inventory buildInventory(ProductSize size, int stock,
-                                     Product product) {
-        return Inventory.builder()
-                .size(size)
-                .stock(stock)
-                .product(product)
                 .build();
     }
 }

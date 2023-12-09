@@ -31,9 +31,8 @@ public class ProductMapper {
     }
 
     public DetailedProductResponse mapToDetailedResponse(Product product) {
-        List<InventoryDto> inventoryList = product.getInventoryList().stream()
-                .map(inventoryMapper::mapToDto)
-                .toList();
+        List<InventoryDto> inventory = inventoryMapper.mapToDtoList(
+                product.getInventory());
         return DetailedProductResponse.builder()
                 .id(product.getId())
                 .sku(product.getSku())
@@ -42,7 +41,7 @@ public class ProductMapper {
                 .description(product.getDescription())
                 .gender(product.getGender())
                 .category(product.getCategory())
-                .inventory(inventoryList)
+                .inventory(inventory)
                 .build();
     }
 }

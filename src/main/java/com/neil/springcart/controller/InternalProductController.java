@@ -1,8 +1,8 @@
 package com.neil.springcart.controller;
 
 import com.neil.springcart.annotations.IsAdmin;
+import com.neil.springcart.dto.AddInventoryRequest;
 import com.neil.springcart.dto.NewProductRequest;
-import com.neil.springcart.dto.UpdateProductInventoryRequest;
 import com.neil.springcart.dto.UpdateProductRequest;
 import com.neil.springcart.model.Product;
 import com.neil.springcart.service.InternalProductService;
@@ -55,18 +55,18 @@ public class InternalProductController {
     }
 
     /**
-     * Handles incoming requests to update product inventory.
+     * Handles incoming requests to add inventory for a product.
      * @param id The ID of the product.
      * @param request The request body.
      */
-    @Operation(summary = "Updates a product's inventory")
-    @PatchMapping("/{id}/inventory")
+    @Operation(summary = "Adds inventory for a product")
+    @PostMapping("/{id}/inventory")
     @ResponseStatus(HttpStatus.OK)
-    public void handleProductInventoryUpdate(@PathVariable Long id,
-            @RequestBody UpdateProductInventoryRequest request) {
-        log.info("PATCH /internal/products/{}/inventory", id);
-        internalProductService.updateProductInventory(id, request.inventory());
-        log.info("Product inventory updated (ID: {})", id);
+    public void handleAddInventory(@PathVariable Long id,
+            @RequestBody @Valid AddInventoryRequest request) {
+        log.info("POST /internal/products/{}/inventory", id);
+        internalProductService.addProductInventory(id, request);
+        log.info("Inventory added for product (ID: {})", id);
     }
 
     /**

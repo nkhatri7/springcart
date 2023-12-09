@@ -1,11 +1,14 @@
 package com.neil.springcart.security;
 
+import com.neil.springcart.exception.ForbiddenException;
 import com.neil.springcart.util.JwtUtil;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -24,6 +27,7 @@ import java.io.IOException;
  */
 @Component
 @AllArgsConstructor
+@Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
@@ -46,19 +50,30 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-        final String jwt = authHeader.substring(7);
-        final String userEmail = jwtUtil.extractUsername(jwt);
+
+        try {
+            final String token = authHeader.substring(7);
+            handleAuthentication(token, request);
+        } catch (ExpiredJwtException ex) {
+            log.error("ExpiredJwtException: {}", ex.getMessage());
+        }
+
+        filterChain.doFilter(request, response);
+    }
+
+    private void handleAuthentication(String token,
+                                      HttpServletRequest request) {
+        final String userEmail = jwtUtil.extractUsername(token);
         Authentication authentication = SecurityContextHolder
                 .getContext()
                 .getAuthentication();
         if (userEmail != null && authentication == null) {
             UserDetails userDetails = this.userDetailsService
                     .loadUserByUsername(userEmail);
-            if (jwtUtil.isTokenValid(jwt, userDetails)) {
+            if (jwtUtil.isTokenValid(token, userDetails)) {
                 setRequestAuthentication(userDetails, request);
             }
         }
-        filterChain.doFilter(request, response);
     }
 
     /**

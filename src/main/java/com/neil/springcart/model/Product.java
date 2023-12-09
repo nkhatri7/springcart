@@ -46,7 +46,7 @@ public class Product {
             cascade = CascadeType.ALL,
             fetch = FetchType.LAZY
     )
-    private List<Inventory> inventoryList;
+    private List<InventoryItem> inventory;
 
     // Generate random UUID for SKU
     // https://stackoverflow.com/questions/62777718/how-to-auto-generate-uuid-value-for-non-primary-key-using-jpa

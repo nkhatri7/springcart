@@ -13,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @ActiveProfiles("test")
-class InventoryRepositoryTest {
+class InventoryItemRepositoryTest {
     @Autowired
     private InventoryRepository inventoryRepository;
     @Autowired
@@ -26,26 +26,26 @@ class InventoryRepositoryTest {
 
     @Test
     void findInventoryByProduct_itShouldReturnEmptyListIfProductHasNoInventoryItems() {
-        List<Inventory> productInventory = inventoryRepository
+        List<InventoryItem> productInventoryItem = inventoryRepository
                 .findInventoryByProduct(1L);
-        assertThat(productInventory.isEmpty()).isTrue();
+        assertThat(productInventoryItem.isEmpty()).isTrue();
     }
 
     @Test
     void findInventoryByProduct_itShouldReturnTwoItemsIfProductHasTwoItems() {
         // Given there are 2 product inventory items
         Product product = buildProduct();
-        List<Inventory> inventoryList = List.of(
-                buildInventory(ProductSize.S, 10, product),
-                buildInventory(ProductSize.M, 20, product)
+        List<InventoryItem> inventory = List.of(
+                buildInventory(ProductSize.S, product),
+                buildInventory(ProductSize.M, product)
         );
-        product.setInventoryList(inventoryList);
+        product.setInventory(inventory);
         Product newProduct = productRepository.save(product);
         // When findInventoryByProduct is called
-        List<Inventory> productInventory = inventoryRepository
+        List<InventoryItem> productInventoryItem = inventoryRepository
                 .findInventoryByProduct(newProduct.getId());
         // A list of 2 items is returned
-        assertThat(productInventory.size()).isEqualTo(inventoryList.size());
+        assertThat(productInventoryItem.size()).isEqualTo(inventory.size());
     }
 
     private Product buildProduct() {
@@ -59,11 +59,9 @@ class InventoryRepositoryTest {
                 .build();
     }
 
-    private Inventory buildInventory(ProductSize size, int stock,
-                                     Product product) {
-        return Inventory.builder()
+    private InventoryItem buildInventory(ProductSize size, Product product) {
+        return InventoryItem.builder()
                 .size(size)
-                .stock(stock)
                 .product(product)
                 .build();
     }

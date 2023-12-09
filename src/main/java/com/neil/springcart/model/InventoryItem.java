@@ -3,14 +3,14 @@ package com.neil.springcart.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Entity(name = "Inventory")
+@Entity(name = "InventoryItem")
 @Table(name = "inventory")
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Inventory {
+public class InventoryItem {
     @Id
     @SequenceGenerator(
             name = "inventory_sequence",
@@ -29,5 +29,5 @@ public class Inventory {
     @Enumerated(EnumType.STRING)
     private ProductSize size;
     @Column(nullable = false)
-    private int stock;
+    private boolean isSold;
 }

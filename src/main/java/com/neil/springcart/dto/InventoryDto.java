@@ -9,6 +9,6 @@ import lombok.Builder;
 public record InventoryDto(
     @NotBlank(message = "Invalid product size")
     ProductSize size,
-    @NotNull
+    @NotNull(message = "Missing stock")
     int stock
 ) {}
