@@ -25,7 +25,9 @@ To run the project locally, follow these steps:
 1. Clone the repository: `git clone https://github.com/nkhatri7/springcart.git`
 2. Navigate to the project directory: `cd springcart`
 3. Install Java 17
-4. Run the application - you can do this by opening the project in IntelliJ and clicking the 'Run' button or running it from the command line like so `./mvnw spring-boot:run`
+4. Run the application - you can do so by either:
+   - Opening the project in IntelliJ and clicking the 'Run' button
+   - Running it from the command line: `./mvnw spring-boot:run`
 
 ## Technologies Used
 
