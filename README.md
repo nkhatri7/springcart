@@ -38,5 +38,5 @@ To run the project locally, follow these steps:
 - DevTools: [Lombok](https://github.com/projectlombok/lombok) to reduce boilerplate code
 - Logging: [SLF4J](https://www.slf4j.org/) through [Lombok](https://github.com/projectlombok/lombok) to track info and errors
 - Swagger Docs: [springdoc-openapi](https://github.com/springdoc/springdoc-openapi) to generate Swagger documentation
-- Hashing: [JBCrypt](https://github.com/jeremyh/jBCrypt) to hash passwords
+- Hashing: [jBCrypt](https://github.com/jeremyh/jBCrypt) to hash passwords
 - CI/CD: [GitHub Actions](https://github.com/features/actions) to build and test application
