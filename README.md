@@ -31,12 +31,12 @@ To run the project locally, follow these steps:
 
 ## Technologies Used
 
-- Framework: [Spring](https://spring.io/)
-- Security: [Spring Security](https://spring.io/projects/spring-security)
-- Authentication: [Java JWT (JJWT)](https://github.com/jwtk/jjwt)
-- Database: [PostgreSQL](https://www.postgresql.org/) and [Spring Data JPA](https://spring.io/projects/spring-data-jpa)
-- DevTools: [Lombok](https://github.com/projectlombok/lombok)
-- Logging: [SLF4J](https://www.slf4j.org/) through [Lombok](https://github.com/projectlombok/lombok)
-- Swagger Docs: [springdoc-openapi](https://github.com/springdoc/springdoc-openapi)
-- Hashing: [JBCrypt](https://github.com/jeremyh/jBCrypt)
-- CI/CD: [GitHub Actions](https://github.com/features/actions)
+- Framework: [Spring](https://spring.io/) to run web server with reduced boilerplate code
+- Security: [Spring Security](https://spring.io/projects/spring-security) to handle endpoint security
+- Authentication: [Java JWT (JJWT)](https://github.com/jwtk/jjwt) to create and authenticate JWT
+- Database: [PostgreSQL](https://www.postgresql.org/) and [Spring Data JPA](https://spring.io/projects/spring-data-jpa) to persist data
+- DevTools: [Lombok](https://github.com/projectlombok/lombok) to reduce boilerplate code
+- Logging: [SLF4J](https://www.slf4j.org/) through [Lombok](https://github.com/projectlombok/lombok) to track info and errors
+- Swagger Docs: [springdoc-openapi](https://github.com/springdoc/springdoc-openapi) to generate Swagger documentation
+- Hashing: [JBCrypt](https://github.com/jeremyh/jBCrypt) to hash passwords
+- CI/CD: [GitHub Actions](https://github.com/features/actions) to build and test application
