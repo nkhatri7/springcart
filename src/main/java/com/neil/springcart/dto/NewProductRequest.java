@@ -10,16 +10,18 @@ import java.util.List;
 
 @Builder
 public record NewProductRequest(
-   @NotBlank
+   @NotBlank(message = "Brand cannot be empty")
    String brand,
-   @NotBlank
+   @NotBlank(message = "Name cannot be empty")
    String name,
-   @NotBlank
+   @NotBlank(message = "Description cannot be empty")
    String description,
    @NotNull(message = "Invalid product category")
    ProductCategory category,
    @NotNull(message = "Invalid product gender")
    ProductGender gender,
+   @NotNull(message = "Missing price")
+   double price,
    @NotNull
    List<InventoryDto> inventory
 ) {}

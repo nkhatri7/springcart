@@ -40,6 +40,8 @@ public class Product {
     @Enumerated(EnumType.STRING)
     private ProductGender gender;
     @Column(nullable = false)
+    private double price;
+    @Column(nullable = false)
     private boolean isActive;
     @OneToMany(
             mappedBy = "product",

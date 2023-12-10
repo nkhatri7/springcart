@@ -11,5 +11,5 @@ import java.util.UUID;
 public record DetailedProductResponse(Long id, UUID sku, String brand,
                                       String name, String description,
                                       ProductCategory category,
-                                      ProductGender gender,
+                                      ProductGender gender, double price,
                                       List<InventoryDto> inventory) {}

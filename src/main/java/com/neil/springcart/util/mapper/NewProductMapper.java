@@ -17,6 +17,7 @@ public class NewProductMapper {
                 .description(request.description().trim())
                 .category(request.category())
                 .gender(request.gender())
+                .price(request.price())
                 .inventory(new ArrayList<>())
                 .isActive(true)
                 .build();

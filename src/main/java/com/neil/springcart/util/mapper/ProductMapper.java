@@ -21,6 +21,7 @@ public class ProductMapper {
                 .name(product.getName())
                 .gender(product.getGender())
                 .category(product.getCategory())
+                .price(product.getPrice())
                 .build();
     }
 
@@ -41,6 +42,7 @@ public class ProductMapper {
                 .description(product.getDescription())
                 .gender(product.getGender())
                 .category(product.getCategory())
+                .price(product.getPrice())
                 .inventory(inventory)
                 .build();
     }

@@ -6,4 +6,5 @@ import lombok.Builder;
 
 @Builder
 public record ProductResponse(Long id, String brand, String name,
-                              ProductCategory category, ProductGender gender) {}
+                              ProductCategory category, ProductGender gender,
+                              double price) {}
