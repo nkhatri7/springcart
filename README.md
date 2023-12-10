@@ -17,6 +17,7 @@ Coming Soon:
 - Create orders
 - Customer wishlist
 - Additional customer details
+- Improved secrets management
 
 ## Setup
 
@@ -25,7 +26,8 @@ To run the project locally, follow these steps:
 1. Clone the repository: `git clone https://github.com/nkhatri7/springcart.git`
 2. Navigate to the project directory: `cd springcart`
 3. Install Java 17
-4. Run the application - you can do so by either:
+4. Create a `secrets.properties` file in the [main resources](./src/main/resources) folder and also the [test resources](./src/test/resources) folder. In both files, create property called `jwt.key` and set it equal to an encryption key (I used [this website](https://generate-random.org/encryption-key-generator?count=1&bytes=512&cipher=aes-256-cbc&string=&password=) to generate my key)
+5. Run the application - you can do so by either:
    - Opening the project in IntelliJ and clicking the 'Run' button
    - Running it from the command line: `./mvnw spring-boot:run`
 
