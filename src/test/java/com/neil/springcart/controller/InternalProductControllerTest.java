@@ -240,6 +240,7 @@ class InternalProductControllerTest {
                 .description("description")
                 .category(ProductCategory.SPORTSWEAR)
                 .gender(ProductGender.MALE)
+                .price(50)
                 .inventory(inventoryList)
                 .build();
     }
@@ -280,6 +281,7 @@ class InternalProductControllerTest {
                 .brand("brand")
                 .category(ProductCategory.SPORTSWEAR)
                 .gender(ProductGender.MALE)
+                .price(50)
                 .isActive(isActive)
                 .build();
         for (InventoryItem inventoryItem : inventory) {

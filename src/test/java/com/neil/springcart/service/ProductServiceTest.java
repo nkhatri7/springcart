@@ -160,6 +160,7 @@ class ProductServiceTest {
                 .description("description")
                 .gender(ProductGender.UNISEX)
                 .category(ProductCategory.SPORTSWEAR)
+                .price(50)
                 .isActive(true)
                 .inventory(new ArrayList<>())
                 .build();

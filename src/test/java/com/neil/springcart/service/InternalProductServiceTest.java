@@ -160,6 +160,7 @@ class InternalProductServiceTest {
                 .description(description)
                 .category(ProductCategory.SPORTSWEAR)
                 .gender(ProductGender.MALE)
+                .price(50)
                 .isActive(true)
                 .inventory(new ArrayList<>())
                 .build();
@@ -185,6 +186,7 @@ class InternalProductServiceTest {
                 .description("description")
                 .category(ProductCategory.SPORTSWEAR)
                 .gender(ProductGender.MALE)
+                .price(50)
                 .inventory(inventoryList)
                 .build();
     }

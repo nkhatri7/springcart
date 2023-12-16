@@ -136,6 +136,7 @@ class ProductControllerTest {
                 .description("description")
                 .category(category)
                 .gender(gender)
+                .price(50)
                 .isActive(isActive)
                 .inventory(new ArrayList<>())
                 .build();
