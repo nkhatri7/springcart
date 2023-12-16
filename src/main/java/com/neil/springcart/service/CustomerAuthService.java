@@ -2,6 +2,8 @@ package com.neil.springcart.service;
 
 import com.neil.springcart.dto.LoginRequest;
 import com.neil.springcart.exception.BadRequestException;
+import com.neil.springcart.model.Cart;
+import com.neil.springcart.repository.CartRepository;
 import com.neil.springcart.repository.CustomerRepository;
 import com.neil.springcart.dto.RegisterRequest;
 import com.neil.springcart.model.Customer;
@@ -11,6 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 @Service
@@ -18,6 +21,7 @@ import java.util.Optional;
 @Slf4j
 public class CustomerAuthService {
     private final CustomerRepository customerRepository;
+    private final CartRepository cartRepository;
     private final PasswordManager passwordManager;
     private final CustomerRegistrationMapper customerRegistrationMapper;
 
@@ -36,7 +40,21 @@ public class CustomerAuthService {
         String encryptedPassword = passwordManager.encryptPassword(rawPassword);
         Customer customer = customerRegistrationMapper.mapToCustomer(request,
                 encryptedPassword);
-        return customerRepository.save(customer);
+        customerRepository.save(customer);
+        createCustomerCart(customer);
+        return customer;
+    }
+
+    private void createCustomerCart(Customer customer) {
+        Cart cart = buildCustomerCart(customer);
+        cartRepository.save(cart);
+    }
+
+    private Cart buildCustomerCart(Customer customer) {
+        return Cart.builder()
+                .customer(customer)
+                .products(new ArrayList<>())
+                .build();
     }
 
     /**

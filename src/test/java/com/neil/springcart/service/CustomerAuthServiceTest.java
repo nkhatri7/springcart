@@ -2,6 +2,7 @@ package com.neil.springcart.service;
 
 import com.neil.springcart.dto.RegisterRequest;
 import com.neil.springcart.model.Customer;
+import com.neil.springcart.repository.CartRepository;
 import com.neil.springcart.repository.CustomerRepository;
 import com.neil.springcart.util.PasswordManager;
 import com.neil.springcart.util.mapper.CustomerRegistrationMapper;
@@ -15,14 +16,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class CustomerAuthServiceTest {
     private CustomerAuthService customerAuthService;
     @Mock
     private CustomerRepository customerRepository;
+    @Mock
+    private CartRepository cartRepository;
     @Mock
     private PasswordManager passwordManager;
 
@@ -31,12 +33,12 @@ class CustomerAuthServiceTest {
         CustomerRegistrationMapper customerRegistrationMapper =
                 new CustomerRegistrationMapper();
         customerAuthService = new CustomerAuthService(customerRepository,
-                passwordManager, customerRegistrationMapper);
+                cartRepository, passwordManager, customerRegistrationMapper);
     }
 
     @AfterEach
     void tearDown() {
-        reset(customerRepository, passwordManager);
+        reset(customerRepository, cartRepository, passwordManager);
     }
 
     @Test
@@ -102,5 +104,16 @@ class CustomerAuthServiceTest {
         assertThat(capturedCustomer.getPassword()).isNotEqualTo(password);
         assertThat(capturedCustomer.getPassword())
                 .isEqualTo(passwordManager.encryptPassword(password));
+    }
+
+    @Test
+    void createCustomer_itShouldCreateACart() {
+        // Given a request body of a name, email and password
+        RegisterRequest request = new RegisterRequest("name", "email",
+                "password");
+        // When createCustomer() is called
+        customerAuthService.createCustomer(request);
+        // Then a cart is created
+        verify(cartRepository, times(1)).save(any());
     }
 }

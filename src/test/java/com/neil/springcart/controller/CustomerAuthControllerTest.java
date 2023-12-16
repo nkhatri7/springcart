@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neil.springcart.dto.LoginRequest;
 import com.neil.springcart.dto.RegisterRequest;
 import com.neil.springcart.model.Customer;
+import com.neil.springcart.repository.CartRepository;
 import com.neil.springcart.repository.CustomerRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -29,6 +30,8 @@ class CustomerAuthControllerTest {
     @Autowired
     private CustomerRepository customerRepository;
     @Autowired
+    private CartRepository cartRepository;
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @AfterEach
@@ -48,6 +51,18 @@ class CustomerAuthControllerTest {
                 .andExpect(status().isCreated());
         assertThat(customerRepository.findAll().size()).isEqualTo(1);
         assertThat(customerRepository.findByEmail(email).isPresent()).isTrue();
+    }
+
+    @Test
+    void registerRouteShouldCreateCustomerCart() throws Exception {
+        RegisterRequest request = new RegisterRequest("name", "email",
+                "password");
+        String requestJson = objectMapper.writeValueAsString(request);
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestJson))
+                .andExpect(status().isCreated());
+        assertThat(cartRepository.findAll().size()).isEqualTo(1);
     }
 
     @Test

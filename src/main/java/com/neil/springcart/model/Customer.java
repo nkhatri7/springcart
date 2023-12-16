@@ -34,6 +34,8 @@ public class Customer implements UserDetails {
     private String email;
     @Column(nullable = false)
     private String password;
+    @OneToOne(mappedBy = "customer", cascade = CascadeType.ALL)
+    private Cart cart;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
