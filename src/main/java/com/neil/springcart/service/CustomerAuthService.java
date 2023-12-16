@@ -45,11 +45,20 @@ public class CustomerAuthService {
         return customer;
     }
 
+    /**
+     * Creates a cart in the database for the given customer.
+     * @param customer The customer the cart is to be created for.
+     */
     private void createCustomerCart(Customer customer) {
         Cart cart = buildCustomerCart(customer);
         cartRepository.save(cart);
     }
 
+    /**
+     * Builds a Cart POJO for the given customer.
+     * @param customer The customer the cart is to be built for.
+     * @return A Cart object linked to the given customer.
+     */
     private Cart buildCustomerCart(Customer customer) {
         return Cart.builder()
                 .customer(customer)
