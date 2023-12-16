@@ -27,7 +27,19 @@ public class CartController {
     @PostMapping("/add")
     @ResponseStatus(HttpStatus.OK)
     public void addProductToCart(@RequestBody @Valid CartRequest request) {
-        log.info("/api/v1/cart/add");
+        log.info("POST /api/v1/cart/add");
         cartService.addProductToCart(request);
+    }
+
+    /**
+     * Removes a product from a customer's cart.
+     * @param request A request containing the customer ID and product ID.
+     */
+    @Operation(summary = "Removes a product from a customer's cart")
+    @PostMapping("/remove")
+    @ResponseStatus(HttpStatus.OK)
+    public void removeProductFromCart(@RequestBody @Valid CartRequest request) {
+        log.info("POST /api/v1/cart/remove");
+        cartService.removeProductFromCart(request);
     }
 }

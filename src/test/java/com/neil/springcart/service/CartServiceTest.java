@@ -85,6 +85,56 @@ class CartServiceTest {
         verify(cartSpy, times(1)).addProduct(product);
     }
 
+    @Test
+    void removeProductFromCartShouldThrowBadRequestExceptionIfProductWasNotInCart() {
+        // Given that a product with ID is not in the cart with ID 1
+        Customer customer = buildCustomer();
+        Cart cart = buildCart(customer, new ArrayList<>());
+        Cart cartSpy = spy(cart);
+        customer.setCart(cart);
+        Long productId = 1L;
+        Product product = buildProduct(productId);
+        given(productRepository.findById(productId))
+                .willReturn(Optional.of(product));
+        given(cartRepository.findById(cart.getId()))
+                .willReturn(Optional.of(cartSpy));
+
+        // When removeProductFromCart() is called with customer ID 1 and product
+        // ID 1
+        CartRequest request = new CartRequest(customer.getId(), productId);
+
+        // Then a BadRequestException is thrown
+        assertThrows(BadRequestException.class, () -> {
+            cartService.removeProductFromCart(request);
+        });
+    }
+
+    @Test
+    void removeProductFromCartShouldRemoveProductFromCartIfItIsInTheCart() {
+        // Given that the product with ID 1 is already in the cart with ID 1
+        Customer customer = buildCustomer();
+        Long productId = 1L;
+        Product product = buildProduct(productId);
+        // Create immutable list of products so it can be removed
+        List<Product> products = new ArrayList<>();
+        products.add(product);
+        Cart cart = buildCart(customer, products);
+        Cart cartSpy = spy(cart);
+        customer.setCart(cart);
+        given(productRepository.findById(productId))
+                .willReturn(Optional.of(product));
+        given(cartRepository.findById(cart.getId()))
+                .willReturn(Optional.of(cartSpy));
+
+        // When removeProductFromCart() is called with customer ID 1 and product
+        // ID 1
+        CartRequest request = new CartRequest(customer.getId(), productId);
+        cartService.removeProductFromCart(request);
+
+        // Then the product is removed from the cart
+        verify(cartSpy, times(1)).removeProduct(product);
+    }
+
     private Cart buildCart(Customer customer, List<Product> products) {
         return Cart.builder()
                 .id(customer.getId())

@@ -1,5 +1,6 @@
 package com.neil.springcart.model;
 
+import com.neil.springcart.exception.BadRequestException;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -38,17 +39,28 @@ public class Cart {
     /**
      * Adds the given product to the list of existing products in the cart.
      * @param product The product to be added to the cart.
+     * @throws BadRequestException If the product is already in the cart.
      */
     public void addProduct(Product product) {
+        if (isProductInCart(product)) {
+            throw new BadRequestException("Product is already in cart");
+        }
         this.products.add(product);
     }
 
     /**
-     * Checks if the given product is already in the cart.
-     * @param product The product being checked.
-     * @return {@code true} if the product is in the cart, {@code false} if not.
+     * Removes the given product from the list of existing products in the cart.
+     * @param product The product to be removed from the cart.
+     * @throws BadRequestException If the product is not in the cart.
      */
-    public boolean isProductInCart(Product product) {
+    public void removeProduct(Product product) {
+        if (!isProductInCart(product)) {
+            throw new BadRequestException("Product is not in cart");
+        }
+        this.products.remove(product);
+    }
+
+    private boolean isProductInCart(Product product) {
         return this.products.contains(product);
     }
 }

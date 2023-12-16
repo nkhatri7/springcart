@@ -26,12 +26,22 @@ public class CartService {
     public void addProductToCart(CartRequest request) {
         Product product = getActiveProduct(request.productId());
         Cart cart = getCustomerCart(request.customerId());
-        if (cart.isProductInCart(product)) {
-            throw new BadRequestException("Product is already in cart");
-        }
         cart.addProduct(product);
-        log.info("Product (ID: {}) added to cart (ID: {})", request.productId(),
-                request.customerId());
+        log.info("Product (ID: {}) added to cart (ID: {})", product.getId(),
+                cart.getId());
+    }
+
+    /**
+     * Removes a product from a customer's cart.
+     * @param request A request containing the customer ID and product ID.
+     */
+    @Transactional
+    public void removeProductFromCart(CartRequest request) {
+        Product product = getActiveProduct(request.productId());
+        Cart cart = getCustomerCart(request.customerId());
+        cart.removeProduct(product);
+        log.info("Product (ID: {}) removed from cart (ID: {})", product.getId(),
+                cart.getId());
     }
 
     private Product getActiveProduct(Long id) {
