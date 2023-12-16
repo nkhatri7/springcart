@@ -57,7 +57,7 @@ public class CartService {
     private Cart getCustomerCart(Long customerId) {
         // Cart ID will be the same as Customer ID
         return cartRepository.findById(customerId).orElseThrow(() ->
-            new BadRequestException("Invalid request")
+            new BadRequestException("Invalid customer ID")
         );
     }
 }

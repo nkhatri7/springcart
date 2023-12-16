@@ -57,7 +57,8 @@ class CartControllerTest {
     void addProductToCartShouldAddTheProductToTheCart() throws Exception {
         // Given the product with ID 1 is not in the cart with ID 1
         Product product = saveProduct(1L);
-        Customer customer = saveCustomerWithCart(new ArrayList<>());
+        Customer customer = saveCustomer();
+        Cart cart = saveCart(customer, new ArrayList<>());
         String token = getToken(customer);
         HttpHeaders headers = httpUtil.generateAuthorizationHeader(token);
         CartRequest request = new CartRequest(customer.getId(),
@@ -69,18 +70,19 @@ class CartControllerTest {
                         .headers(headers)
                         .content(requestJson))
                 .andExpect(status().isOk());
-        Optional<Cart> cart = cartRepository.findById(customer.getId());
-        assertThat(cart.isPresent()).isTrue();
-        assertThat(cart.get().getProducts().size()).isEqualTo(1);
+        Optional<Cart> optionalCart = cartRepository.findById(cart.getId());
+        assertThat(optionalCart.isPresent()).isTrue();
+        assertThat(optionalCart.get().getProducts().size()).isEqualTo(1);
     }
 
     @Test
     void removeProductFromCartShouldRemoveTheProductFromTheCart() throws Exception {
         // Given the product with ID 1 is in the cart with ID 1
+        Customer customer = saveCustomer();
         Product product = saveProduct(1L);
         List<Product> cartProducts = new ArrayList<>();
         cartProducts.add(product);
-        Customer customer = saveCustomerWithCart(cartProducts);
+        Cart cart = saveCart(customer, cartProducts);
         String token = getToken(customer);
         HttpHeaders headers = httpUtil.generateAuthorizationHeader(token);
         CartRequest request = new CartRequest(customer.getId(),
@@ -92,18 +94,9 @@ class CartControllerTest {
                         .headers(headers)
                         .content(requestJson))
                 .andExpect(status().isOk());
-        Optional<Cart> cart = cartRepository.findById(customer.getId());
-        assertThat(cart.isPresent()).isTrue();
-        assertThat(cart.get().getProducts().size()).isEqualTo(0);
-    }
-
-    private Customer saveCustomerWithCart(List<Product> products) {
-        Customer customer = buildCustomer();
-        saveCustomer(customer);
-        Cart cart = buildCart(customer, products);
-        cartRepository.save(cart);
-        customer.setCart(cart);
-        return customer;
+        Optional<Cart> optionalCart = cartRepository.findById(cart.getId());
+        assertThat(optionalCart.isPresent()).isTrue();
+        assertThat(optionalCart.get().getProducts().size()).isEqualTo(0);
     }
 
     private Product saveProduct(Long id) {
@@ -126,9 +119,13 @@ class CartControllerTest {
                 .build();
     }
 
+    private Cart saveCart(Customer customer, List<Product> products) {
+        Cart cart = buildCart(customer, products);
+        return cartRepository.save(cart);
+    }
+
     private Cart buildCart(Customer customer, List<Product> products) {
         return Cart.builder()
-                .id(customer.getId())
                 .products(products)
                 .customer(customer)
                 .build();
@@ -138,7 +135,8 @@ class CartControllerTest {
         return jwtUtil.generateToken(customer);
     }
 
-    private Customer saveCustomer(Customer customer) {
+    private Customer saveCustomer() {
+        Customer customer = buildCustomer();
         return customerRepository.save(customer);
     }
 
