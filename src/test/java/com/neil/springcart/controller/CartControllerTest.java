@@ -99,10 +99,10 @@ class CartControllerTest {
 
     private Customer saveCustomerWithCart(List<Product> products) {
         Customer customer = buildCustomer();
-        Cart cart = buildCart(customer, products);
-        customer.setCart(cart);
         saveCustomer(customer);
+        Cart cart = buildCart(customer, products);
         cartRepository.save(cart);
+        customer.setCart(cart);
         return customer;
     }
 
