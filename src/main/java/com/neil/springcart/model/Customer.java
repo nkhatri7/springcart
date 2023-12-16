@@ -34,7 +34,11 @@ public class Customer implements UserDetails {
     private String email;
     @Column(nullable = false)
     private String password;
-    @OneToOne(mappedBy = "customer", cascade = CascadeType.ALL)
+    @OneToOne(
+            mappedBy = "customer",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY
+    )
     private Cart cart;
 
     @Override

@@ -51,7 +51,7 @@ class CartServiceTest {
         customer.setCart(cart);
         given(productRepository.findById(productId))
                 .willReturn(Optional.of(product));
-        given(cartRepository.findById(cart.getId()))
+        given(cartRepository.findByCustomerId(customer.getId()))
                 .willReturn(Optional.of(cart));
 
         // When addProductToCart() is called with customer ID 1 and product ID 1
@@ -74,7 +74,7 @@ class CartServiceTest {
         Product product = buildProduct(productId);
         given(productRepository.findById(productId))
                 .willReturn(Optional.of(product));
-        given(cartRepository.findById(cart.getId()))
+        given(cartRepository.findByCustomerId(customer.getId()))
                 .willReturn(Optional.of(cartSpy));
 
         // When addProductToCart() is called with customer ID 1 and product ID 1
@@ -96,7 +96,7 @@ class CartServiceTest {
         Product product = buildProduct(productId);
         given(productRepository.findById(productId))
                 .willReturn(Optional.of(product));
-        given(cartRepository.findById(cart.getId()))
+        given(cartRepository.findByCustomerId(customer.getId()))
                 .willReturn(Optional.of(cartSpy));
 
         // When removeProductFromCart() is called with customer ID 1 and product
@@ -123,7 +123,7 @@ class CartServiceTest {
         customer.setCart(cart);
         given(productRepository.findById(productId))
                 .willReturn(Optional.of(product));
-        given(cartRepository.findById(cart.getId()))
+        given(cartRepository.findByCustomerId(customer.getId()))
                 .willReturn(Optional.of(cartSpy));
 
         // When removeProductFromCart() is called with customer ID 1 and product
