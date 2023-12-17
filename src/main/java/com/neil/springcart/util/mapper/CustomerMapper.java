@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 public class CustomerMapper {
     public CustomerResponse mapToResponse(Customer customer) {
         return CustomerResponse.builder()
+                .id(customer.getId())
                 .name(customer.getName())
                 .email(customer.getEmail())
                 .build();
