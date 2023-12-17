@@ -5,6 +5,9 @@ import com.neil.springcart.exception.BadRequestException;
 import com.neil.springcart.model.*;
 import com.neil.springcart.repository.CartRepository;
 import com.neil.springcart.repository.ProductRepository;
+import com.neil.springcart.util.mapper.CartMapper;
+import com.neil.springcart.util.mapper.InventoryMapper;
+import com.neil.springcart.util.mapper.ProductMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,7 +36,11 @@ class CartServiceTest {
 
     @BeforeEach
     void setUp() {
-        cartService = new CartService(cartRepository, productRepository);
+        InventoryMapper inventoryMapper = new InventoryMapper();
+        ProductMapper productMapper = new ProductMapper(inventoryMapper);
+        CartMapper cartMapper = new CartMapper(productMapper);
+        cartService = new CartService(cartRepository, productRepository,
+                cartMapper);
     }
 
     @AfterEach

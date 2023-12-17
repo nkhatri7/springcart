@@ -1,11 +1,13 @@
 package com.neil.springcart.service;
 
 import com.neil.springcart.dto.CartRequest;
+import com.neil.springcart.dto.CartResponse;
 import com.neil.springcart.exception.BadRequestException;
 import com.neil.springcart.model.Cart;
 import com.neil.springcart.model.Product;
 import com.neil.springcart.repository.CartRepository;
 import com.neil.springcart.repository.ProductRepository;
+import com.neil.springcart.util.mapper.CartMapper;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +19,17 @@ import org.springframework.stereotype.Service;
 public class CartService {
     private final CartRepository cartRepository;
     private final ProductRepository productRepository;
+    private final CartMapper cartMapper;
+
+    /**
+     * Gets a customer's cart details.
+     * @param customerId The customer ID.
+     * @return The cart details.
+     */
+    public CartResponse getCustomerCartDetails(Long customerId) {
+        Cart cart = getCartByCustomerId(customerId);
+        return cartMapper.mapToResponse(cart);
+    }
 
     /**
      * Adds a product to a customer's cart.
@@ -25,7 +38,7 @@ public class CartService {
     @Transactional
     public void addProductToCart(CartRequest request) {
         Product product = getActiveProduct(request.productId());
-        Cart cart = getCustomerCart(request.customerId());
+        Cart cart = getCartByCustomerId(request.customerId());
         cart.addProduct(product);
         log.info("Product (ID: {}) added to cart (ID: {})", product.getId(),
                 cart.getId());
@@ -38,7 +51,7 @@ public class CartService {
     @Transactional
     public void removeProductFromCart(CartRequest request) {
         Product product = getActiveProduct(request.productId());
-        Cart cart = getCustomerCart(request.customerId());
+        Cart cart = getCartByCustomerId(request.customerId());
         cart.removeProduct(product);
         log.info("Product (ID: {}) removed from cart (ID: {})", product.getId(),
                 cart.getId());
@@ -54,7 +67,7 @@ public class CartService {
         return product;
     }
 
-    private Cart getCustomerCart(Long customerId) {
+    private Cart getCartByCustomerId(Long customerId) {
         // Cart ID will usually be the same as Customer ID but searching the
         // cart by customer ID is safer
         return cartRepository.findByCustomerId(customerId).orElseThrow(() ->

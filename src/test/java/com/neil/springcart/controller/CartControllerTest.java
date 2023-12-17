@@ -25,6 +25,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ActiveProfiles("test")
@@ -51,6 +52,23 @@ class CartControllerTest {
         customerRepository.deleteAll();
         cartRepository.deleteAll();
         productRepository.deleteAll();
+    }
+
+    @Test
+    void getCustomerCartShouldReturnCartDetails() throws Exception {
+        // Given a customer makes a request to get their cart details
+        Customer customer = saveCustomer();
+        Cart cart = saveCart(customer, new ArrayList<>());
+        String token = getToken(customer);
+        HttpHeaders headers = httpUtil.generateAuthorizationHeader(token);
+        String endpoint = "/api/v1/cart/customer/" + customer.getId();
+        // When a request is made
+        // Then the cart details are returned
+        mockMvc.perform(MockMvcRequestBuilders.get(endpoint).headers(headers))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.cartId").value(cart.getId()))
+                .andExpect(jsonPath("$.items").isArray())
+                .andExpect(jsonPath("$.items").isEmpty());
     }
 
     @Test

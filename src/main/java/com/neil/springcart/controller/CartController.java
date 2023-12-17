@@ -1,6 +1,7 @@
 package com.neil.springcart.controller;
 
 import com.neil.springcart.dto.CartRequest;
+import com.neil.springcart.dto.CartResponse;
 import com.neil.springcart.service.CartService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -18,6 +19,14 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class CartController {
     private final CartService cartService;
+
+    @Operation(summary = "Gets a customer's cart details")
+    @GetMapping("/customer/{customerId}")
+    @ResponseStatus(HttpStatus.OK)
+    public CartResponse getCustomerCart(@PathVariable Long customerId) {
+        log.info("GET /api/v1/cart/customer/{}", customerId);
+        return cartService.getCustomerCartDetails(customerId);
+    }
 
     /**
      * Adds a product to a customer's cart.
