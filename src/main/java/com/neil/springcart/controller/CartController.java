@@ -20,6 +20,11 @@ import org.springframework.web.bind.annotation.*;
 public class CartController {
     private final CartService cartService;
 
+    /**
+     * Gets a customer's cart details.
+     * @param customerId The customer ID.
+     * @return The cart details.
+     */
     @Operation(summary = "Gets a customer's cart details")
     @GetMapping("/customer/{customerId}")
     @ResponseStatus(HttpStatus.OK)
