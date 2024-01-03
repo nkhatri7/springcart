@@ -8,7 +8,7 @@ import com.neil.springcart.exception.BadRequestException;
 import com.neil.springcart.exception.NotFoundException;
 import com.neil.springcart.model.InventoryItem;
 import com.neil.springcart.model.Product;
-import com.neil.springcart.repository.InventoryRepository;
+import com.neil.springcart.repository.InventoryItemRepository;
 import com.neil.springcart.repository.ProductRepository;
 import com.neil.springcart.util.mapper.InventoryMapper;
 import com.neil.springcart.util.mapper.NewProductMapper;
@@ -22,7 +22,7 @@ import java.util.List;
 @AllArgsConstructor
 public class InternalProductService {
     private final ProductRepository productRepository;
-    private final InventoryRepository inventoryRepository;
+    private final InventoryItemRepository inventoryItemRepository;
     private final NewProductMapper newProductMapper;
     private final InventoryMapper inventoryMapper;
 
@@ -59,7 +59,7 @@ public class InternalProductService {
                                       List<InventoryDto> inventoryDtoList) {
         List<InventoryItem> inventory = inventoryMapper.mapToInventory(product,
                 inventoryDtoList);
-        inventoryRepository.saveAll(inventory);
+        inventoryItemRepository.saveAll(inventory);
     }
 
     /**

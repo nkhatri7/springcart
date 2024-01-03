@@ -5,7 +5,7 @@ import com.neil.springcart.dto.InventoryDto;
 import com.neil.springcart.dto.NewProductRequest;
 import com.neil.springcart.dto.UpdateProductRequest;
 import com.neil.springcart.model.*;
-import com.neil.springcart.repository.InventoryRepository;
+import com.neil.springcart.repository.InventoryItemRepository;
 import com.neil.springcart.repository.ProductRepository;
 import com.neil.springcart.util.mapper.InventoryMapper;
 import com.neil.springcart.util.mapper.NewProductMapper;
@@ -34,19 +34,19 @@ class InternalProductServiceTest {
     @Mock
     private ProductRepository productRepository;
     @Mock
-    private InventoryRepository inventoryRepository;
+    private InventoryItemRepository inventoryItemRepository;
 
     @BeforeEach
     void setUp() {
         NewProductMapper newProductMapper = new NewProductMapper();
         InventoryMapper inventoryMapper = new InventoryMapper();
         internalProductService = new InternalProductService(productRepository,
-                inventoryRepository, newProductMapper, inventoryMapper);
+                inventoryItemRepository, newProductMapper, inventoryMapper);
     }
 
     @AfterEach
     void tearDown() {
-        reset(productRepository, inventoryRepository);
+        reset(productRepository, inventoryItemRepository);
     }
 
     @Test
@@ -71,7 +71,7 @@ class InternalProductServiceTest {
         // Then 10 inventory items are saved
         ArgumentCaptor<List<InventoryItem>> argumentCaptor = ArgumentCaptor
                 .forClass(List.class);
-        verify(inventoryRepository).saveAll(argumentCaptor.capture());
+        verify(inventoryItemRepository).saveAll(argumentCaptor.capture());
         List<InventoryItem> inventory = argumentCaptor.getValue();
         assertThat(inventory.size()).isEqualTo(10);
     }

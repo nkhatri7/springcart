@@ -8,7 +8,7 @@ import com.neil.springcart.dto.UpdateProductRequest;
 import com.neil.springcart.model.*;
 import com.neil.springcart.repository.AdminRepository;
 import com.neil.springcart.repository.CustomerRepository;
-import com.neil.springcart.repository.InventoryRepository;
+import com.neil.springcart.repository.InventoryItemRepository;
 import com.neil.springcart.repository.ProductRepository;
 import com.neil.springcart.util.JwtUtil;
 import org.junit.jupiter.api.AfterEach;
@@ -46,7 +46,7 @@ class InternalProductControllerTest {
     @Autowired
     private ProductRepository productRepository;
     @Autowired
-    private InventoryRepository inventoryRepository;
+    private InventoryItemRepository inventoryItemRepository;
     @Autowired
     private JwtUtil jwtUtils;
 
@@ -54,7 +54,7 @@ class InternalProductControllerTest {
     void tearDown() {
         adminRepository.deleteAll();
         customerRepository.deleteAll();
-        inventoryRepository.deleteAll();
+        inventoryItemRepository.deleteAll();
         productRepository.deleteAll();
     }
 
@@ -76,7 +76,7 @@ class InternalProductControllerTest {
                         .content(requestJson))
                         .andExpect(status().isCreated());
         assertThat(productRepository.findAll().size()).isEqualTo(1);
-        assertThat(inventoryRepository.findAll().size())
+        assertThat(inventoryItemRepository.findAll().size())
                 .isEqualTo(getTotalStock(request));
     }
 
@@ -161,7 +161,7 @@ class InternalProductControllerTest {
                         .headers(requestHeaders)
                         .content(requestJson))
                         .andExpect(status().isOk());
-        List<InventoryItem> productInventory = inventoryRepository
+        List<InventoryItem> productInventory = inventoryItemRepository
                 .findInventoryByProduct(product.getId());
         assertThat(productInventory.size()).isEqualTo(42);
     }

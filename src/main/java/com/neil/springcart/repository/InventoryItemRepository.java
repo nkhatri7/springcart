@@ -9,7 +9,12 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface InventoryRepository extends JpaRepository<InventoryItem, Long> {
+public interface InventoryItemRepository extends JpaRepository<InventoryItem, Long> {
+    /**
+     * Finds all the available inventory for the product with the given ID.
+     * @param productId The ID of a product.
+     * @return A list of available inventory for a product.
+     */
     @Query("SELECT i FROM InventoryItem i WHERE i.product.id = ?1 AND i.isSold = false")
     List<InventoryItem> findInventoryByProduct(Long productId);
 

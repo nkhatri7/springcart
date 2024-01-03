@@ -2,6 +2,7 @@ package com.neil.springcart.service;
 
 import com.neil.springcart.dto.CreateOrderRequest;
 import com.neil.springcart.dto.OrderLineItemDto;
+import com.neil.springcart.dto.OrderSummary;
 import com.neil.springcart.exception.BadRequestException;
 import com.neil.springcart.model.*;
 import com.neil.springcart.repository.*;
@@ -22,29 +23,31 @@ public class OrderService {
     private final OrderLineItemRepository orderLineItemRepository;
     private final CustomerRepository customerRepository;
     private final ProductRepository productRepository;
-    private final InventoryRepository inventoryRepository;
+    private final InventoryItemRepository inventoryItemRepository;
     private final OrderMapper orderMapper;
 
-    public Long createOrder(CreateOrderRequest request) {
+    /**
+     * Creates an order in the database with the data from the request.
+     * @param request An object containing the customer ID, items to be ordered,
+     *                and the shipping address.
+     * @return An order summary for the newly created order.
+     */
+    public OrderSummary createOrder(CreateOrderRequest request) {
         Customer customer = getCustomerById(request.customerId());
-        Order order = orderMapper.mapToOrder(customer);
+        Order order = orderMapper.mapToOrder(customer,
+                request.shippingAddress());
         List<OrderLineItem> items = getOrderLineItems(request.items());
 
         orderRepository.save(order);
         saveOrderLineItems(items, order);
         log.info("Order (ID: {}) created", order.getId());
-        return order.getId();
+        return getOrderSummary(order);
     }
 
     private Customer getCustomerById(Long id) {
         return customerRepository.findById(id).orElseThrow(() ->
                 new BadRequestException("Invalid customer ID")
         );
-    }
-
-    private void saveOrderLineItems(List<OrderLineItem> items, Order order) {
-        items.forEach(item -> item.setOrder(order));
-        orderLineItemRepository.saveAll(items);
     }
 
     private List<OrderLineItem> getOrderLineItems(
@@ -62,7 +65,8 @@ public class OrderService {
         validateStockAvailability(item, inventory);
 
         return IntStream.range(0, item.quantity())
-                .mapToObj(i -> createOrderLineItem(item, product, inventory, i))
+                .mapToObj(i -> createOrderLineItem(item, product,
+                        inventory.get(i)))
                 .toList();
     }
 
@@ -77,7 +81,7 @@ public class OrderService {
     }
 
     private List<InventoryItem> getOrderItemInventory(OrderLineItemDto item) {
-        return inventoryRepository.findInventoryByProductAndSize(
+        return inventoryItemRepository.findInventoryByProductAndSize(
                 item.productId(), item.size());
     }
 
@@ -90,9 +94,7 @@ public class OrderService {
 
     private OrderLineItem createOrderLineItem(OrderLineItemDto itemDto,
                                               Product product,
-                                              List<InventoryItem> inventory,
-                                              int index) {
-        InventoryItem inventoryItem = inventory.get(index);
+                                              InventoryItem inventoryItem) {
         updateInventoryItemStatus(inventoryItem);
         return orderMapper.mapToOrderLineItem(itemDto, product, inventoryItem);
     }
@@ -100,5 +102,32 @@ public class OrderService {
     @Transactional
     private void updateInventoryItemStatus(InventoryItem inventoryItem) {
         inventoryItem.setSold(true);
+    }
+
+    private void saveOrderLineItems(List<OrderLineItem> items, Order order) {
+        items.forEach(item -> item.setOrder(order));
+        orderLineItemRepository.saveAll(items);
+        order.setItems(items);
+    }
+
+    private OrderSummary getOrderSummary(Order order) {
+        double orderPrice = calculateOrderPrice(order.getItems());
+        return buildOrderSummary(order, orderPrice);
+    }
+
+    private double calculateOrderPrice(List<OrderLineItem> orderLineItems) {
+        return orderLineItems.stream()
+                .mapToDouble(item -> item.getProduct().getPrice())
+                .sum();
+    }
+
+    private OrderSummary buildOrderSummary(Order order, double orderPrice) {
+        return OrderSummary.builder()
+                .id(order.getId())
+                .date(order.getDate())
+                .shippingAddress(order.getShippingAddress())
+                .items(order.getItems().size())
+                .price(orderPrice)
+                .build();
     }
 }

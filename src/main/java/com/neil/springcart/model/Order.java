@@ -1,8 +1,10 @@
 package com.neil.springcart.model;
 
+import com.neil.springcart.util.converter.AddressConverter;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Date;
 import java.util.List;
 
 @Entity(name = "Order")
@@ -30,10 +32,14 @@ public class Order {
     @OneToMany(
             mappedBy = "order",
             fetch = FetchType.EAGER,
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
+            cascade = CascadeType.ALL
     )
     private List<OrderLineItem> items;
+    @Column(nullable = false)
+    private Date date;
+    @Convert(converter = AddressConverter.class)
+    @Column(nullable = false)
+    private Address shippingAddress;
     @Column(nullable = false)
     private boolean isCancelled;
 }
