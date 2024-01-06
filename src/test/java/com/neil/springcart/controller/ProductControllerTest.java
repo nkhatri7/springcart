@@ -34,8 +34,6 @@ class ProductControllerTest {
     private ProductRepository productRepository;
     @Autowired
     private JwtUtil jwtUtil;
-    @Autowired
-    private HttpUtil httpUtil;
 
     @AfterEach
     void tearDown() {
@@ -49,7 +47,7 @@ class ProductControllerTest {
         saveProduct("product 1", false);
         saveProduct("product 2", true);
         String token = getToken();
-        HttpHeaders headers = httpUtil.generateAuthorizationHeader(token);
+        HttpHeaders headers = HttpUtil.generateAuthorizationHeader(token);
         // When a request is made, then one product is returned
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/products")
                 .headers(headers))
@@ -65,7 +63,7 @@ class ProductControllerTest {
         saveProduct("male product", gender);
         saveProduct("female product", ProductGender.FEMALE);
         String token = getToken();
-        HttpHeaders headers = httpUtil.generateAuthorizationHeader(token);
+        HttpHeaders headers = HttpUtil.generateAuthorizationHeader(token);
         // When a request is made with the gender being specified as MALE
         // Then one product is returned
         String endpoint = "/api/v1/products?gender=" + gender;
@@ -83,7 +81,7 @@ class ProductControllerTest {
         saveProduct("male product", gender, category);
         saveProduct("female product", ProductGender.FEMALE, category);
         String token = getToken();
-        HttpHeaders headers = httpUtil.generateAuthorizationHeader(token);
+        HttpHeaders headers = HttpUtil.generateAuthorizationHeader(token);
         // When a request is made with the gender being specified as MALE and
         // the category being specified as SPORTSWEAR
         // Then one product is returned
@@ -100,7 +98,7 @@ class ProductControllerTest {
         // Given a product with ID 1 exists
         Product product = saveProduct("product", true);
         String token = getToken();
-        HttpHeaders headers = httpUtil.generateAuthorizationHeader(token);
+        HttpHeaders headers = HttpUtil.generateAuthorizationHeader(token);
         // When a request is made with the product ID
         // Then the product details are returned
         String endpoint = "/api/v1/products/" + product.getId();

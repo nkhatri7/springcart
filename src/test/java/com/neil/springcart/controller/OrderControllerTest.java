@@ -47,8 +47,6 @@ class OrderControllerTest {
     private InventoryItemRepository inventoryItemRepository;
     @Autowired
     private JwtUtil jwtUtil;
-    @Autowired
-    private HttpUtil httpUtil;
 
     @AfterEach
     void tearDown() {
@@ -73,7 +71,7 @@ class OrderControllerTest {
         CreateOrderRequest request = buildCreateOrderRequest(customer.getId(),
                 orderLineItemDtos);
         String requestJson = objectMapper.writeValueAsString(request);
-        HttpHeaders headers = httpUtil.generateAuthorizationHeader(
+        HttpHeaders headers = HttpUtil.generateAuthorizationHeader(
                 getCustomerToken(customer));
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/orders")
                 .headers(headers)
@@ -96,7 +94,7 @@ class OrderControllerTest {
         saveOrders(customer, 1);
 
         // When a request is made to get the customer's orders
-        HttpHeaders headers = httpUtil.generateAuthorizationHeader(
+        HttpHeaders headers = HttpUtil.generateAuthorizationHeader(
                 getCustomerToken(customer));
         String requestUrl = "/api/v1/orders/customer/" + customer.getId();
         mockMvc.perform(MockMvcRequestBuilders.get(requestUrl).headers(headers))
@@ -114,7 +112,7 @@ class OrderControllerTest {
         saveOrders(customer, 3);
 
         // When a request is made to get the customer's orders
-        HttpHeaders headers = httpUtil.generateAuthorizationHeader(
+        HttpHeaders headers = HttpUtil.generateAuthorizationHeader(
                 getCustomerToken(customer));
         String requestUrl = "/api/v1/orders/customer/" + customer.getId();
         mockMvc.perform(MockMvcRequestBuilders.get(requestUrl).headers(headers))

@@ -16,7 +16,7 @@ public class HttpUtil {
      * @param token The JWT token to be in the Authorization header.
      * @return An HTTP headers object with the Authorization header.
      */
-    public HttpHeaders generateAuthorizationHeader(String token) {
+    public static HttpHeaders generateAuthorizationHeader(String token) {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
         return headers;

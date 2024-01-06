@@ -29,7 +29,6 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class InternalAuthController {
     private final InternalAuthService internalAuthService;
-    private final HttpUtil httpUtil;
     private final JwtUtil jwtUtil;
     private final AdminMapper adminMapper;
 
@@ -49,7 +48,7 @@ public class InternalAuthController {
         log.info("Admin signed in (ID: {})", admin.getId());
         String token = jwtUtil.generateToken(admin);
 
-        HttpHeaders headers = httpUtil.generateAuthorizationHeader(token);
+        HttpHeaders headers = HttpUtil.generateAuthorizationHeader(token);
         AdminAuthResponse response = adminMapper.mapToResponse(admin);
         return ResponseEntity
                 .status(HttpStatus.OK)

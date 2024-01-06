@@ -30,7 +30,6 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class CustomerAuthController {
     private final CustomerAuthService customerAuthService;
-    private final HttpUtil httpUtil;
     private final JwtUtil jwtUtil;
     private final CustomerMapper customerMapper;
 
@@ -51,7 +50,7 @@ public class CustomerAuthController {
         log.info("Customer created (ID: {})", customer.getId());
         String token = jwtUtil.generateToken(customer);
 
-        HttpHeaders headers = httpUtil.generateAuthorizationHeader(token);
+        HttpHeaders headers = HttpUtil.generateAuthorizationHeader(token);
         CustomerResponse response = customerMapper.mapToResponse(customer);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -75,7 +74,7 @@ public class CustomerAuthController {
         log.info("Customer signed in (ID: {})", customer.getId());
         String token = jwtUtil.generateToken(customer);
 
-        HttpHeaders headers = httpUtil.generateAuthorizationHeader(token);
+        HttpHeaders headers = HttpUtil.generateAuthorizationHeader(token);
         CustomerResponse response = customerMapper.mapToResponse(customer);
         return ResponseEntity
                 .status(HttpStatus.OK)

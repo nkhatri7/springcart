@@ -44,8 +44,6 @@ class CartControllerTest {
     private ProductRepository productRepository;
     @Autowired
     private JwtUtil jwtUtil;
-    @Autowired
-    private HttpUtil httpUtil;
 
     @AfterEach
     void tearDown() {
@@ -60,7 +58,7 @@ class CartControllerTest {
         Customer customer = saveCustomer();
         Cart cart = saveCart(customer, new ArrayList<>());
         String token = getToken(customer);
-        HttpHeaders headers = httpUtil.generateAuthorizationHeader(token);
+        HttpHeaders headers = HttpUtil.generateAuthorizationHeader(token);
         String endpoint = "/api/v1/cart/customer/" + customer.getId();
         // When a request is made
         // Then the cart details are returned
@@ -78,7 +76,7 @@ class CartControllerTest {
         Customer customer = saveCustomer();
         Cart cart = saveCart(customer, new ArrayList<>());
         String token = getToken(customer);
-        HttpHeaders headers = httpUtil.generateAuthorizationHeader(token);
+        HttpHeaders headers = HttpUtil.generateAuthorizationHeader(token);
         CartRequest request = new CartRequest(customer.getId(),
                 product.getId());
         String requestJson = objectMapper.writeValueAsString(request);
@@ -102,7 +100,7 @@ class CartControllerTest {
         cartProducts.add(product);
         Cart cart = saveCart(customer, cartProducts);
         String token = getToken(customer);
-        HttpHeaders headers = httpUtil.generateAuthorizationHeader(token);
+        HttpHeaders headers = HttpUtil.generateAuthorizationHeader(token);
         CartRequest request = new CartRequest(customer.getId(),
                 product.getId());
         String requestJson = objectMapper.writeValueAsString(request);
