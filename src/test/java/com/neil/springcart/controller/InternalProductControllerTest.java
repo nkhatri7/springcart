@@ -162,7 +162,7 @@ class InternalProductControllerTest {
                         .content(requestJson))
                         .andExpect(status().isOk());
         List<InventoryItem> productInventory = inventoryItemRepository
-                .findInventoryByProduct(product.getId());
+                .findAllByProductId(product.getId());
         assertThat(productInventory.size()).isEqualTo(42);
     }
 

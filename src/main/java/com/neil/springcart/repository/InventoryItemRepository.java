@@ -16,7 +16,7 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, Lo
      * @return A list of available inventory for a product.
      */
     @Query("SELECT i FROM InventoryItem i WHERE i.product.id = ?1 AND i.isSold = false")
-    List<InventoryItem> findInventoryByProduct(Long productId);
+    List<InventoryItem> findAllByProductId(Long productId);
 
     /**
      * Finds available inventory items for the product with the given ID that
@@ -27,6 +27,6 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, Lo
      * the product with the given ID.
      */
     @Query("SELECT i FROM InventoryItem i WHERE i.product.id = ?1 AND i.size = ?2 AND i.isSold = false")
-    List<InventoryItem> findInventoryByProductAndSize(Long productId,
-                                                      ProductSize size);
+    List<InventoryItem> findAllByProductIdAndSize(Long productId,
+                                                  ProductSize size);
 }

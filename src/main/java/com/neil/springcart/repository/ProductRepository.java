@@ -15,9 +15,9 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findActiveProducts();
 
     @Query("SELECT p FROM Product p WHERE p.gender = ?1 OR p.gender = UNISEX")
-    List<Product> findProductsByGender(ProductGender gender);
+    List<Product> findAllByGender(ProductGender gender);
 
     @Query("SELECT p FROM Product p WHERE (p.gender = ?1 OR p.gender = UNISEX) AND p.category = ?2")
-    List<Product> findProductsByGenderAndCategory(ProductGender gender,
-                                                  ProductCategory category);
+    List<Product> findAllByGenderAndCategory(ProductGender gender,
+                                             ProductCategory category);
 }

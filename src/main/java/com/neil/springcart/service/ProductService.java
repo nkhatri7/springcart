@@ -37,7 +37,7 @@ public class ProductService {
      * @return A list of products for the given gender.
      */
     public List<ProductResponse> getProductsByGender(ProductGender gender) {
-        List<Product> products = productRepository.findProductsByGender(gender);
+        List<Product> products = productRepository.findAllByGender(gender);
         log.info("{} active {} products found", products.size(), gender);
         return productMapper.mapListToResponse(products);
     }
@@ -51,7 +51,7 @@ public class ProductService {
     public List<ProductResponse> getProductsByGenderAndCategory(
             ProductGender gender, ProductCategory category) {
         List<Product> products = productRepository
-                .findProductsByGenderAndCategory(gender, category);
+                .findAllByGenderAndCategory(gender, category);
         log.info("{} active {} {} products found", products.size(), gender,
                 category);
         return productMapper.mapListToResponse(products);

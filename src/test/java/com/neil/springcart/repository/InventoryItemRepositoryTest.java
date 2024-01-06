@@ -25,14 +25,14 @@ class InventoryItemRepositoryTest {
     }
 
     @Test
-    void findInventoryByProduct_itShouldReturnEmptyListIfProductHasNoInventoryItems() {
+    void findAllByProductId_itShouldReturnEmptyListIfProductHasNoInventoryItems() {
         List<InventoryItem> productInventoryItem = inventoryItemRepository
-                .findInventoryByProduct(1L);
+                .findAllByProductId(1L);
         assertThat(productInventoryItem.isEmpty()).isTrue();
     }
 
     @Test
-    void findInventoryByProduct_itShouldReturnTwoItemsIfProductHasTwoItems() {
+    void findAllByProductId_itShouldReturnTwoItemsIfProductHasTwoItems() {
         // Given there are 2 product inventory items
         Product product = buildProduct();
         List<InventoryItem> inventory = List.of(
@@ -41,15 +41,15 @@ class InventoryItemRepositoryTest {
         );
         product.setInventory(inventory);
         Product newProduct = productRepository.save(product);
-        // When findInventoryByProduct is called
+        // When findAllByProductId is called
         List<InventoryItem> productInventoryItem = inventoryItemRepository
-                .findInventoryByProduct(newProduct.getId());
+                .findAllByProductId(newProduct.getId());
         // A list of 2 items is returned
         assertThat(productInventoryItem.size()).isEqualTo(inventory.size());
     }
 
     @Test
-    void findInventoryByProductAndSizeShouldReturnAnEmptyListIfTheProductHasNoItemsInSmallSizeAndSmallSizeIsBeingSearched() {
+    void findAllByProductIdAndSizeShouldReturnAnEmptyListIfTheProductHasNoItemsInSmallSizeAndSmallSizeIsBeingSearched() {
         // Given there is one size medium inventory item for a product
         Product product = buildProduct();
         List<InventoryItem> inventory = List.of(
@@ -57,16 +57,16 @@ class InventoryItemRepositoryTest {
         );
         product.setInventory(inventory);
         productRepository.save(product);
-        // When findInventoryByProductAndSize() is called with a search for
+        // When findAllByProductIdAndSize() is called with a search for
         // size small
         List<InventoryItem> productInventory = inventoryItemRepository
-                .findInventoryByProductAndSize(product.getId(), ProductSize.S);
+                .findAllByProductIdAndSize(product.getId(), ProductSize.S);
         // Then an empty list is returned
         assertThat(productInventory.size()).isEqualTo(0);
     }
 
     @Test
-    void findInventoryByProductAndSizeShouldReturnOneItemIfTheProductHasOneSmallItemAndSmallSizeIsBeingSearched() {
+    void findAllByProductIdAndSizeShouldReturnOneItemIfTheProductHasOneSmallItemAndSmallSizeIsBeingSearched() {
         // Given there is one size small inventory item for a product
         Product product = buildProduct();
         List<InventoryItem> inventory = List.of(
@@ -74,16 +74,16 @@ class InventoryItemRepositoryTest {
         );
         product.setInventory(inventory);
         productRepository.save(product);
-        // When findInventoryByProductAndSize() is called with a search for
+        // When findAllByProductIdAndSize() is called with a search for
         // size small
         List<InventoryItem> productInventory = inventoryItemRepository
-                .findInventoryByProductAndSize(product.getId(), ProductSize.S);
+                .findAllByProductIdAndSize(product.getId(), ProductSize.S);
         // Then one inventory item is returned
         assertThat(productInventory.size()).isEqualTo(1);
     }
 
     @Test
-    void findInventoryByProductAndSizeShouldReturnAnEmptyListIfTheProductHasOneSmallItemThatIsSoldAndSmallSizeIsBeingSearched() {
+    void findAllByProductIdAndSizeShouldReturnAnEmptyListIfTheProductHasOneSmallItemThatIsSoldAndSmallSizeIsBeingSearched() {
         // Given there is one small size inventory item for a product, but it
         // has already been sold
         Product product = buildProduct();
@@ -91,10 +91,10 @@ class InventoryItemRepositoryTest {
         inventoryItem.setSold(true);
         product.setInventory(List.of(inventoryItem));
         productRepository.save(product);
-        // When findInventoryByProductAndSize() is called with a search for
+        // When findAllByProductAndSize() is called with a search for
         // size small
         List<InventoryItem> productInventory = inventoryItemRepository
-                .findInventoryByProductAndSize(product.getId(), ProductSize.S);
+                .findAllByProductIdAndSize(product.getId(), ProductSize.S);
         // Then an empty list is returned
         assertThat(productInventory.size()).isEqualTo(0);
     }

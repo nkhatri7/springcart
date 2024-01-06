@@ -14,5 +14,5 @@ public interface OrderLineItemRepository
      * @return A list of order line items linked to the order with the given ID.
      */
     @Query("SELECT i FROM OrderLineItem i WHERE i.order.id = ?1")
-    List<OrderLineItem> findOrderLineItemsByOrderId(Long orderId);
+    List<OrderLineItem> findAllByOrderId(Long orderId);
 }

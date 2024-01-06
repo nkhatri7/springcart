@@ -46,41 +46,41 @@ class ProductRepositoryTest {
     }
 
     @Test
-    void findProductsByGenderShouldReturnAnEmptyListIfThereAreNoProductsForTheGivenGender() {
+    void findAllByGenderShouldReturnAnEmptyListIfThereAreNoProductsForTheGivenGender() {
         // Given there is one female product
         saveProduct("female product", ProductGender.FEMALE);
-        // When findProductsByGender() is called with MALE
+        // When findAllByGender() is called with MALE
         List<Product> products = productRepository
-                .findProductsByGender(ProductGender.MALE);
+                .findAllByGender(ProductGender.MALE);
         // Then an empty list will be returned
         assertThat(products.isEmpty()).isTrue();
     }
 
     @Test
-    void findProductsByGenderShouldReturnOneProductIfThereIsOneProductForTheGivenGender() {
+    void findAllByGenderShouldReturnOneProductIfThereIsOneProductForTheGivenGender() {
         // Given there is one female product
         ProductGender gender = ProductGender.FEMALE;
         saveProduct("female product", gender);
-        // When findProductsByGender() is called with FEMALE
-        List<Product> products = productRepository.findProductsByGender(gender);
+        // When findAllByGender() is called with FEMALE
+        List<Product> products = productRepository.findAllByGender(gender);
         // Then one product will be returned
         assertThat(products.size()).isEqualTo(1);
     }
 
     @Test
-    void findProductsByGenderShouldReturnTwoProductsIfThereIsOneProductForTheGivenGenderAndOneUnisexProduct() {
+    void findAllByGenderShouldReturnTwoProductsIfThereIsOneProductForTheGivenGenderAndOneUnisexProduct() {
         // Given there is one male product and one unisex product
         ProductGender gender = ProductGender.MALE;
         saveProduct("male product", gender);
         saveProduct("unisex product", ProductGender.UNISEX);
-        // When findProductsByGender() is called with MALE
-        List<Product> products = productRepository.findProductsByGender(gender);
+        // When findAllByGender() is called with MALE
+        List<Product> products = productRepository.findAllByGender(gender);
         // Then two products will be returned
         assertThat(products.size()).isEqualTo(2);
     }
 
     @Test
-    void findProductsByGenderAndCategoryShouldReturnOneProductIfThereIsOneProductWithTheGivenGenderAndCategory() {
+    void findAllByGenderAndCategoryShouldReturnOneProductIfThereIsOneProductWithTheGivenGenderAndCategory() {
         // Given there are two products with one being MALE and SPORTSWEAR
         // and the other being FEMALE and SPORTSWEAR
         ProductGender gender = ProductGender.MALE;
@@ -88,10 +88,10 @@ class ProductRepositoryTest {
         saveProduct("male sportswear product", gender, category);
         saveProduct("female sportswear product", ProductGender.FEMALE,
                 category);
-        // When findProductsByGenderAndCategory() is called with MALE and
+        // When findAllByGenderAndCategory() is called with MALE and
         // SPORTSWEAR
         List<Product> products = productRepository
-                .findProductsByGenderAndCategory(gender, category);
+                .findAllByGenderAndCategory(gender, category);
         // Then one product will be returned
         assertThat(products.size()).isEqualTo(1);
     }

@@ -72,7 +72,7 @@ class ProductServiceTest {
     void getProductsByGenderShouldReturnAnEmptyListIfThereAreNoProductsForTheGivenGender() {
         // Given there are no MALE products
         ProductGender gender = ProductGender.MALE;
-        given(productRepository.findProductsByGender(gender))
+        given(productRepository.findAllByGender(gender))
                 .willReturn(new ArrayList<>());
         // When getProductsByGender() is called with MALE
         List<ProductResponse> products = productService
@@ -86,7 +86,7 @@ class ProductServiceTest {
         // Given there is one MALE product
         ProductGender gender = ProductGender.MALE;
         Product product = buildProductWithGender(1L, "male product", gender);
-        given(productRepository.findProductsByGender(gender))
+        given(productRepository.findAllByGender(gender))
                 .willReturn(List.of(product));
         // When getProductsByGender() is called with MALE
         List<ProductResponse> products = productService
@@ -102,7 +102,7 @@ class ProductServiceTest {
         ProductCategory category = ProductCategory.SPORTSWEAR;
         Product product = buildProductWithGenderAndCategory(1L,
                 "male sportswear product", gender, category);
-        given(productRepository.findProductsByGenderAndCategory(
+        given(productRepository.findAllByGenderAndCategory(
                 gender, category)).willReturn(List.of(product));
         // When getProductsByGenderAndCategory() is called with MALE and
         // SPORTSWEAR

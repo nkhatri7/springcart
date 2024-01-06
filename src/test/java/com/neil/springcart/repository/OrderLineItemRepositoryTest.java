@@ -37,28 +37,28 @@ class OrderLineItemRepositoryTest {
     }
 
     @Test
-    void findOrderLineItemsByOrderIdShouldReturnOneItemIfThereIsOneItemWithThatOrderId() {
+    void findAllByOrderIdShouldReturnOneItemIfThereIsOneItemWithThatOrderId() {
         // Given there is one item in the order
         Product product = productRepository.save(buildProduct());
         Order order = orderRepository.save(buildOrder());
         orderLineItemRepository.save(buildOrderLineItem(order, product));
-        // When findOrderLineItemsByOrderId() is called
+        // When findAllByOrderId() is called
         List<OrderLineItem> orderLineItems = orderLineItemRepository
-                .findOrderLineItemsByOrderId(order.getId());
+                .findAllByOrderId(order.getId());
         // Then one OrderLineItem is returned
         assertThat(orderLineItems.size()).isEqualTo(1);
     }
 
     @Test
-    void findOrderLineItemsByOrderIdShouldReturnTwoItemsIfThereAreTwoItemsWithThatOrderId() {
+    void findAllByOrderIdShouldReturnTwoItemsIfThereAreTwoItemsWithThatOrderId() {
         // Given there are two items in the order
         Product product = productRepository.save(buildProduct());
         Order order = orderRepository.save(buildOrder());
         orderLineItemRepository.save(buildOrderLineItem(order, product));
         orderLineItemRepository.save(buildOrderLineItem(order, product));
-        // When findOrderLineItemsByOrderId() is called
+        // When findAllByOrderId() is called
         List<OrderLineItem> orderLineItems = orderLineItemRepository
-                .findOrderLineItemsByOrderId(order.getId());
+                .findAllByOrderId(order.getId());
         // Then two OrderLineItems are returned
         assertThat(orderLineItems.size()).isEqualTo(2);
     }
