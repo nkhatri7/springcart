@@ -26,6 +26,10 @@ public class HttpUtil {
         return headers;
     }
 
+    /**
+     * Gets the current request path.
+     * @return The current request path.
+     */
     public static String getCurrentRequestPath() {
         ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder
                 .getRequestAttributes();
