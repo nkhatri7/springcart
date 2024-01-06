@@ -1,9 +1,11 @@
 package com.neil.springcart.util;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * Contains utility methods related to HTTP requests. Should only be used in
@@ -28,7 +30,11 @@ public class HttpUtil {
         ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder
                 .getRequestAttributes();
         if (requestAttributes != null) {
-            return requestAttributes.getRequest().getRequestURI();
+            HttpServletRequest request = requestAttributes.getRequest();
+            UriComponentsBuilder builder = UriComponentsBuilder
+                    .fromPath(request.getRequestURI())
+                    .query(request.getQueryString());
+            return builder.toUriString();
         }
         return "Unknown path";
     }
