@@ -2,6 +2,7 @@ package com.neil.springcart.service;
 
 import com.neil.springcart.dto.CreateOrderRequest;
 import com.neil.springcart.dto.OrderLineItemDto;
+import com.neil.springcart.dto.OrderSummary;
 import com.neil.springcart.exception.BadRequestException;
 import com.neil.springcart.model.*;
 import com.neil.springcart.repository.*;
@@ -70,7 +71,7 @@ class OrderServiceTest {
         List<InventoryItem> productInventory = List.of(
                 buildInventoryItem(size, product)
         );
-        given(inventoryItemRepository.findInventoryByProductAndSize(
+        given(inventoryItemRepository.findAllByProductIdAndSize(
                 product.getId(), size))
                 .willReturn(productInventory);
         List<OrderLineItemDto> orderItems = List.of(
@@ -110,7 +111,7 @@ class OrderServiceTest {
                 buildInventoryItem(size, product),
                 buildInventoryItem(size, product)
         );
-        given(inventoryItemRepository.findInventoryByProductAndSize(
+        given(inventoryItemRepository.findAllByProductIdAndSize(
                 product.getId(), size))
                 .willReturn(productInventory);
         List<OrderLineItemDto> orderItems = List.of(
@@ -142,7 +143,7 @@ class OrderServiceTest {
         List<InventoryItem> productInventory = List.of(
                 buildInventoryItem(size, product)
         );
-        given(inventoryItemRepository.findInventoryByProductAndSize(
+        given(inventoryItemRepository.findAllByProductIdAndSize(
                 product.getId(), size))
                 .willReturn(productInventory);
         List<OrderLineItemDto> orderItems = List.of(
@@ -154,6 +155,33 @@ class OrderServiceTest {
         assertThrows(BadRequestException.class, () -> {
             orderService.createOrder(buildCreateOrderRequest(orderItems));
         });
+    }
+
+    @Test
+    void getCustomerOrdersReturnsAnEmptyListIfTheCustomerHasNoOrders() {
+        // Given a customer has no orders
+        Long customerId = 1L;
+        given(orderRepository.findAllByCustomerId(customerId))
+                .willReturn(new ArrayList<>());
+        // When getCustomerOrders() is called
+        List<OrderSummary> customerOrders = orderService.getCustomerOrders(
+                customerId);
+        // Then an empty list is returned
+        assertThat(customerOrders.isEmpty()).isTrue();
+    }
+
+    @Test
+    void getCustomerOrdersReturnsTwoOrdersIfTheCustomerHasTwoOrders() {
+        // Given a customer has 2 orders
+        Long customerId = 1L;
+        List<Order> orders = List.of(buildOrder(), buildOrder());
+        given(orderRepository.findAllByCustomerId(customerId))
+                .willReturn(orders);
+        // When getCustomerOrders() is called
+        List<OrderSummary> customerOrders = orderService.getCustomerOrders(
+                customerId);
+        // Then 2 orders are returned
+        assertThat(customerOrders.size()).isEqualTo(2);
     }
 
     private CreateOrderRequest buildCreateOrderRequest(

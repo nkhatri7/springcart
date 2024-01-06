@@ -81,7 +81,7 @@ public class OrderService {
     }
 
     private List<InventoryItem> getOrderItemInventory(OrderLineItemDto item) {
-        return inventoryItemRepository.findInventoryByProductAndSize(
+        return inventoryItemRepository.findAllByProductIdAndSize(
                 item.productId(), item.size());
     }
 
@@ -129,5 +129,18 @@ public class OrderService {
                 .items(order.getItems().size())
                 .price(orderPrice)
                 .build();
+    }
+
+    /**
+     * Gets the orders for the customer with the given ID.
+     * @param customerId The customer ID.
+     * @return A list of order summaries for the customer with the given ID.
+     */
+    public List<OrderSummary> getCustomerOrders(Long customerId) {
+        List<Order> customerOrders = orderRepository.findAllByCustomerId(
+                customerId);
+        return customerOrders.stream()
+                .map(this::getOrderSummary)
+                .toList();
     }
 }

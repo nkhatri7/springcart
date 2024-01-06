@@ -19,10 +19,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ActiveProfiles("test")
@@ -85,6 +87,42 @@ class OrderControllerTest {
                 .isEqualTo(2);
     }
 
+    @Test
+    void getCustomerOrdersReturnsOneItemIfACustomerHasMadeOneOrder() throws Exception {
+        // Given a customer has made 1 order
+        Customer customer = saveCustomer();
+        Product product = saveProduct();
+        saveInventory(product, ProductSize.S, 1);
+        saveOrders(customer, 1);
+
+        // When a request is made to get the customer's orders
+        HttpHeaders headers = httpUtil.generateAuthorizationHeader(
+                getCustomerToken(customer));
+        String requestUrl = "/api/v1/orders/customer/" + customer.getId();
+        mockMvc.perform(MockMvcRequestBuilders.get(requestUrl).headers(headers))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(1));
+    }
+
+    @Test
+    void getCustomerOrdersReturnsThreeItemsIfACustomerHasMadeThreeOrders() throws Exception {
+        // Given a customer has made 3 orders
+        Customer customer = saveCustomer();
+        Product product = saveProduct();
+        saveInventory(product, ProductSize.S, 3);
+        saveOrders(customer, 3);
+
+        // When a request is made to get the customer's orders
+        HttpHeaders headers = httpUtil.generateAuthorizationHeader(
+                getCustomerToken(customer));
+        String requestUrl = "/api/v1/orders/customer/" + customer.getId();
+        mockMvc.perform(MockMvcRequestBuilders.get(requestUrl).headers(headers))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(3));
+    }
+
     private Customer saveCustomer() {
         return customerRepository.save(buildCustomer());
     }
@@ -99,6 +137,22 @@ class OrderControllerTest {
 
     private String getCustomerToken(Customer customer) {
         return jwtUtil.generateToken(customer);
+    }
+
+    private void saveOrders(Customer customer, int numOrders) {
+        for (int i = 0; i < numOrders; i++) {
+            orderRepository.save(buildOrder(customer));
+        }
+    }
+
+    private Order buildOrder(Customer customer) {
+        return Order.builder()
+                .customer(customer)
+                .shippingAddress(buildAddress())
+                .date(new Date())
+                .items(new ArrayList<>())
+                .isCancelled(false)
+                .build();
     }
 
     private Product saveProduct() {

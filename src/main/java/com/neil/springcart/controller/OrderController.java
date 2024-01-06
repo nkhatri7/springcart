@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * A controller to handle incoming requests for order related operations.
  */
@@ -33,5 +35,18 @@ public class OrderController {
             @RequestBody @Valid CreateOrderRequest request) {
         log.info("POST /api/v1/orders");
         return orderService.createOrder(request);
+    }
+
+    /**
+     * Gets data on all of a customer's orders.
+     * @param customerId The ID of a customer.
+     * @return A list of order summaries for a customer.
+     */
+    @Operation(summary = "Gets a customer's orders")
+    @GetMapping("/customer/{customerId}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<OrderSummary> getCustomerOrders(@PathVariable Long customerId) {
+        log.info("GET /api/v1/orders/customer/{}", customerId);
+        return orderService.getCustomerOrders(customerId);
     }
 }
