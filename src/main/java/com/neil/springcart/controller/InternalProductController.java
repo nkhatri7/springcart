@@ -6,6 +6,7 @@ import com.neil.springcart.dto.NewProductRequest;
 import com.neil.springcart.dto.UpdateProductRequest;
 import com.neil.springcart.model.Product;
 import com.neil.springcart.service.InternalProductService;
+import com.neil.springcart.util.HttpUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -34,7 +35,7 @@ public class InternalProductController {
     @ResponseStatus(HttpStatus.CREATED)
     public void handleNewProduct(
             @RequestBody @Valid NewProductRequest request) {
-        log.info("POST /internal/products");
+        log.info("POST {}", HttpUtil.getCurrentRequestPath());
         Product product = internalProductService.createProduct(request);
         log.info("Product created (ID: {})", product.getId());
     }
@@ -49,7 +50,7 @@ public class InternalProductController {
     @ResponseStatus(HttpStatus.OK)
     public void handleProductUpdate(@PathVariable Long id,
             @RequestBody UpdateProductRequest request) {
-        log.info("PATCH /internal/products/{}", id);
+        log.info("PATCH {}", HttpUtil.getCurrentRequestPath());
         internalProductService.updateProduct(id, request);
         log.info("Product updated (ID: {})", id);
     }
@@ -64,7 +65,7 @@ public class InternalProductController {
     @ResponseStatus(HttpStatus.OK)
     public void handleAddInventory(@PathVariable Long id,
             @RequestBody @Valid AddInventoryRequest request) {
-        log.info("POST /internal/products/{}/inventory", id);
+        log.info("POST {}", HttpUtil.getCurrentRequestPath());
         internalProductService.addProductInventory(id, request);
         log.info("Inventory added for product (ID: {})", id);
     }
@@ -77,7 +78,7 @@ public class InternalProductController {
     @PatchMapping("/{id}/archive")
     @ResponseStatus(HttpStatus.OK)
     public void handleArchiveProduct(@PathVariable Long id) {
-        log.info("PATCH /internal/products/{}/archive", id);
+        log.info("PATCH {}", HttpUtil.getCurrentRequestPath());
         internalProductService.archiveProduct(id);
         log.info("Product archived (ID: {})", id);
     }
@@ -90,7 +91,7 @@ public class InternalProductController {
     @PatchMapping("/{id}/unarchive")
     @ResponseStatus(HttpStatus.OK)
     public void handleUnarchiveProduct(@PathVariable Long id) {
-        log.info("PATCH /internal/products/{}/unarchive", id);
+        log.info("PATCH {}", HttpUtil.getCurrentRequestPath());
         internalProductService.unarchiveProduct(id);
         log.info("Product unarchived (ID: {})", id);
     }

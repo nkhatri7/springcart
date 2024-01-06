@@ -44,7 +44,7 @@ public class CustomerAuthController {
     @PostMapping("/register")
     public ResponseEntity<CustomerResponse> handleCustomerRegistration(
             @RequestBody @Valid RegisterRequest request) {
-        log.info("POST /api/v1/auth/register");
+        log.info("POST {}", HttpUtil.getCurrentRequestPath());
 
         Customer customer = customerAuthService.createCustomer(request);
         log.info("Customer created (ID: {})", customer.getId());
@@ -68,7 +68,7 @@ public class CustomerAuthController {
     @PostMapping("/login")
     public ResponseEntity<CustomerResponse> handleLoginRequest(
             @RequestBody @Valid LoginRequest request) {
-        log.info("POST /api/v1/auth/login");
+        log.info("POST {}", HttpUtil.getCurrentRequestPath());
 
         Customer customer = customerAuthService.authenticateCustomer(request);
         log.info("Customer signed in (ID: {})", customer.getId());

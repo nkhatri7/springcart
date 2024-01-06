@@ -3,6 +3,7 @@ package com.neil.springcart.controller;
 import com.neil.springcart.dto.CreateOrderRequest;
 import com.neil.springcart.dto.OrderSummary;
 import com.neil.springcart.service.OrderService;
+import com.neil.springcart.util.HttpUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -33,7 +34,7 @@ public class OrderController {
     @ResponseStatus(HttpStatus.CREATED)
     public OrderSummary createOrder(
             @RequestBody @Valid CreateOrderRequest request) {
-        log.info("POST /api/v1/orders");
+        log.info("POST {}", HttpUtil.getCurrentRequestPath());
         return orderService.createOrder(request);
     }
 
@@ -46,7 +47,7 @@ public class OrderController {
     @GetMapping("/customer/{customerId}")
     @ResponseStatus(HttpStatus.OK)
     public List<OrderSummary> getCustomerOrders(@PathVariable Long customerId) {
-        log.info("GET /api/v1/orders/customer/{}", customerId);
+        log.info("GET {}", HttpUtil.getCurrentRequestPath());
         return orderService.getCustomerOrders(customerId);
     }
 }

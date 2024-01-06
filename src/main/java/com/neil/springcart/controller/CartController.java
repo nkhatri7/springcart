@@ -3,6 +3,7 @@ package com.neil.springcart.controller;
 import com.neil.springcart.dto.CartRequest;
 import com.neil.springcart.dto.CartResponse;
 import com.neil.springcart.service.CartService;
+import com.neil.springcart.util.HttpUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -29,7 +30,7 @@ public class CartController {
     @GetMapping("/customer/{customerId}")
     @ResponseStatus(HttpStatus.OK)
     public CartResponse getCustomerCart(@PathVariable Long customerId) {
-        log.info("GET /api/v1/cart/customer/{}", customerId);
+        log.info("GET {}", HttpUtil.getCurrentRequestPath());
         return cartService.getCustomerCartDetails(customerId);
     }
 
@@ -41,7 +42,7 @@ public class CartController {
     @PostMapping("/add")
     @ResponseStatus(HttpStatus.OK)
     public void addProductToCart(@RequestBody @Valid CartRequest request) {
-        log.info("POST /api/v1/cart/add");
+        log.info("POST {}", HttpUtil.getCurrentRequestPath());
         cartService.addProductToCart(request);
     }
 
@@ -53,7 +54,7 @@ public class CartController {
     @PostMapping("/remove")
     @ResponseStatus(HttpStatus.OK)
     public void removeProductFromCart(@RequestBody @Valid CartRequest request) {
-        log.info("POST /api/v1/cart/remove");
+        log.info("POST {}", HttpUtil.getCurrentRequestPath());
         cartService.removeProductFromCart(request);
     }
 }

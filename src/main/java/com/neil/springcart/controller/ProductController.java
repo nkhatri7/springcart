@@ -5,6 +5,7 @@ import com.neil.springcart.dto.ProductResponse;
 import com.neil.springcart.model.ProductCategory;
 import com.neil.springcart.model.ProductGender;
 import com.neil.springcart.service.ProductService;
+import com.neil.springcart.util.HttpUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +32,7 @@ public class ProductController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<ProductResponse> getAllProducts() {
-        log.info("GET /api/v1/products");
+        log.info("GET {}", HttpUtil.getCurrentRequestPath());
         return productService.getAllProducts();
     }
 
@@ -44,7 +45,7 @@ public class ProductController {
     @ResponseStatus(HttpStatus.OK)
     public List<ProductResponse> getAllProductsByGender(
             @RequestParam ProductGender gender) {
-        log.info("GET /api/v1/products?gender={}", gender);
+        log.info("GET {}", HttpUtil.getCurrentRequestPath());
         return productService.getProductsByGender(gender);
     }
 
@@ -61,8 +62,7 @@ public class ProductController {
     public List<ProductResponse> getProductsByGenderAndCategory(
             @RequestParam ProductGender gender,
             @RequestParam ProductCategory category) {
-        log.info("GET /api/v1/products?gender={}&category={}", gender,
-                category);
+        log.info("GET {}", HttpUtil.getCurrentRequestPath());
         return productService.getProductsByGenderAndCategory(gender, category);
     }
 
@@ -75,7 +75,7 @@ public class ProductController {
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public DetailedProductResponse getProduct(@PathVariable Long id) {
-        log.info("GET /api/v1/products/{}", id);
+        log.info("GET {}", HttpUtil.getCurrentRequestPath());
         return productService.getProductById(id);
     }
 }

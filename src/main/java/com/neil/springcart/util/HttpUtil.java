@@ -2,6 +2,8 @@ package com.neil.springcart.util;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  * Contains utility methods related to HTTP requests. Should only be used in
@@ -20,5 +22,14 @@ public class HttpUtil {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
         return headers;
+    }
+
+    public static String getCurrentRequestPath() {
+        ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder
+                .getRequestAttributes();
+        if (requestAttributes != null) {
+            return requestAttributes.getRequest().getRequestURI();
+        }
+        return "Unknown path";
     }
 }

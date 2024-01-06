@@ -42,7 +42,7 @@ public class InternalAuthController {
     @PostMapping("/login")
     public ResponseEntity<AdminAuthResponse> handleAdminLogin(
             @RequestBody @Valid LoginRequest request) {
-        log.info("POST /internal/auth/login");
+        log.info("POST {}", HttpUtil.getCurrentRequestPath());
 
         Admin admin = internalAuthService.authenticateAdmin(request);
         log.info("Admin signed in (ID: {})", admin.getId());
