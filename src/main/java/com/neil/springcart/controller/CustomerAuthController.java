@@ -12,7 +12,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -50,11 +49,10 @@ public class CustomerAuthController {
         log.info("Customer created (ID: {})", customer.getId());
         String token = jwtUtil.generateToken(customer);
 
-        HttpHeaders headers = HttpUtil.generateAuthorizationHeader(token);
         CustomerResponse response = customerMapper.mapToResponse(customer);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .headers(headers)
+                .headers(HttpUtil.generateAuthorizationHeader(token))
                 .body(response);
     }
 
@@ -74,11 +72,10 @@ public class CustomerAuthController {
         log.info("Customer signed in (ID: {})", customer.getId());
         String token = jwtUtil.generateToken(customer);
 
-        HttpHeaders headers = HttpUtil.generateAuthorizationHeader(token);
         CustomerResponse response = customerMapper.mapToResponse(customer);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .headers(headers)
+                .headers(HttpUtil.generateAuthorizationHeader(token))
                 .body(response);
     }
 }

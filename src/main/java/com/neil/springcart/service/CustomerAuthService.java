@@ -8,7 +8,6 @@ import com.neil.springcart.repository.CustomerRepository;
 import com.neil.springcart.dto.RegisterRequest;
 import com.neil.springcart.model.Customer;
 import com.neil.springcart.util.PasswordManager;
-import com.neil.springcart.util.mapper.CustomerRegistrationMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,8 +22,6 @@ public class CustomerAuthService {
     private final CustomerRepository customerRepository;
     private final CartRepository cartRepository;
     private final PasswordManager passwordManager;
-    private final CustomerRegistrationMapper customerRegistrationMapper;
-
     /**
      * Creates a customer in the database with the data from the request.
      * @param request The body of a request from the /register route.
@@ -38,11 +35,28 @@ public class CustomerAuthService {
         }
         String rawPassword = request.password().trim();
         String encryptedPassword = passwordManager.encryptPassword(rawPassword);
-        Customer customer = customerRegistrationMapper.mapToCustomer(request,
-                encryptedPassword);
+        Customer customer = buildCustomer(request, encryptedPassword);
         customerRepository.save(customer);
         createCustomerCart(customer);
         return customer;
+    }
+
+    /**
+     * Checks if a Customer exists with that email.
+     * @param email The email of a customer.
+     * @return {@code true} if the email is taken, {@code false} if it is not.
+     */
+    private boolean isEmailTaken(String email) {
+        Optional<Customer> existingCustomer = getCustomerByEmail(email);
+        return existingCustomer.isPresent();
+    }
+
+    private Customer buildCustomer(RegisterRequest request, String password) {
+        return Customer.builder()
+                .name(request.name().trim())
+                .email(request.email().trim())
+                .password(password)
+                .build();
     }
 
     /**
@@ -64,17 +78,6 @@ public class CustomerAuthService {
                 .customer(customer)
                 .products(new ArrayList<>())
                 .build();
-    }
-
-    /**
-     * Checks if a Customer exists with that email.
-     * @param email The email of a customer.
-     * @return {@code true} if the email is taken, {@code false} if it is not.
-     */
-    private boolean isEmailTaken(String email) {
-        Optional<Customer> existingCustomer = customerRepository
-                .findByEmail(email);
-        return existingCustomer.isPresent();
     }
 
     /**

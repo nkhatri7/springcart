@@ -6,8 +6,6 @@ import com.neil.springcart.model.Product;
 import com.neil.springcart.model.ProductSize;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;

@@ -5,7 +5,6 @@ import com.neil.springcart.model.Customer;
 import com.neil.springcart.repository.CartRepository;
 import com.neil.springcart.repository.CustomerRepository;
 import com.neil.springcart.util.PasswordManager;
-import com.neil.springcart.util.mapper.CustomerRegistrationMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,10 +29,8 @@ class CustomerAuthServiceTest {
 
     @BeforeEach
     void setUp() {
-        CustomerRegistrationMapper customerRegistrationMapper =
-                new CustomerRegistrationMapper();
         customerAuthService = new CustomerAuthService(customerRepository,
-                cartRepository, passwordManager, customerRegistrationMapper);
+                cartRepository, passwordManager);
     }
 
     @AfterEach
