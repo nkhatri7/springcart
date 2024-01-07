@@ -133,6 +133,8 @@ public class OrderService {
     public List<OrderSummary> getCustomerOrders(Long customerId) {
         List<Order> customerOrders = orderRepository.findAllByCustomerId(
                 customerId);
+        log.info("Orders retrieved from database for customer (ID: {})",
+                customerId);
         return customerOrders.stream()
                 .map(orderMapper::mapToSummary)
                 .toList();
