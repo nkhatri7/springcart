@@ -11,10 +11,10 @@ SpringCart is a Java-based web API for e-commerce applications. It can be used t
 - Internal product management (create products, manage inventory, update product details)
 - Product retrieval (fetching product data)
 - Add to cart/remove from cart
+- Customer orders
 
 Coming Soon:
 
-- Create orders
 - Customer wishlist
 - Additional customer details
 - Improved secrets management
