@@ -6,7 +6,6 @@ import com.neil.springcart.model.Admin;
 import com.neil.springcart.service.InternalAuthService;
 import com.neil.springcart.util.HttpUtil;
 import com.neil.springcart.util.JwtUtil;
-import com.neil.springcart.util.mapper.AdminMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -30,7 +29,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class InternalAuthController {
     private final InternalAuthService internalAuthService;
     private final JwtUtil jwtUtil;
-    private final AdminMapper adminMapper;
 
     /**
      * Handles incoming requests for the internal /login endpoint which
@@ -48,11 +46,9 @@ public class InternalAuthController {
         log.info("Admin signed in (ID: {})", admin.getId());
         String token = jwtUtil.generateToken(admin);
 
-        HttpHeaders headers = HttpUtil.generateAuthorizationHeader(token);
-        AdminAuthResponse response = adminMapper.mapToResponse(admin);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .headers(headers)
-                .body(response);
+                .headers(HttpUtil.generateAuthorizationHeader(token))
+                .body(new AdminAuthResponse(admin.getEmail()));
     }
 }
