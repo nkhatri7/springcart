@@ -1,6 +1,7 @@
 package com.neil.springcart.controller;
 
 import com.neil.springcart.dto.CreateOrderRequest;
+import com.neil.springcart.dto.OrderResponse;
 import com.neil.springcart.dto.OrderSummary;
 import com.neil.springcart.service.OrderService;
 import com.neil.springcart.util.HttpUtil;
@@ -49,5 +50,18 @@ public class OrderController {
     public List<OrderSummary> getCustomerOrders(@PathVariable Long customerId) {
         log.info("GET {}", HttpUtil.getCurrentRequestPath());
         return orderService.getCustomerOrders(customerId);
+    }
+
+    /**
+     * Gets all the order details for the order with the given ID.
+     * @param id The ID of the order.
+     * @return The order details.
+     */
+    @Operation(summary = "Gets an order's details")
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public OrderResponse getOrderDetails(@PathVariable Long id) {
+        log.info("GET {}", HttpUtil.getCurrentRequestPath());
+        return orderService.getOrderDetails(id);
     }
 }

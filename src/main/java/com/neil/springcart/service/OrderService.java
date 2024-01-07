@@ -2,6 +2,7 @@ package com.neil.springcart.service;
 
 import com.neil.springcart.dto.CreateOrderRequest;
 import com.neil.springcart.dto.OrderLineItemDto;
+import com.neil.springcart.dto.OrderResponse;
 import com.neil.springcart.dto.OrderSummary;
 import com.neil.springcart.exception.BadRequestException;
 import com.neil.springcart.model.*;
@@ -12,6 +13,8 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -34,20 +37,29 @@ public class OrderService {
      */
     public OrderSummary createOrder(CreateOrderRequest request) {
         Customer customer = getCustomerById(request.customerId());
-        Order order = orderMapper.mapToOrder(customer,
-                request.shippingAddress());
+        Order order = buildOrder(customer, request.shippingAddress());
         List<OrderLineItem> items = getOrderLineItems(request.items());
 
         orderRepository.save(order);
         saveOrderLineItems(items, order);
         log.info("Order (ID: {}) created", order.getId());
-        return getOrderSummary(order);
+        return orderMapper.mapToSummary(order);
     }
 
     private Customer getCustomerById(Long id) {
         return customerRepository.findById(id).orElseThrow(() ->
                 new BadRequestException("Invalid customer ID")
         );
+    }
+
+    private Order buildOrder(Customer customer, Address shippingAddress) {
+        return Order.builder()
+                .customer(customer)
+                .items(new ArrayList<>())
+                .date(new Date())
+                .shippingAddress(shippingAddress)
+                .isCancelled(false)
+                .build();
     }
 
     private List<OrderLineItem> getOrderLineItems(
@@ -65,8 +77,7 @@ public class OrderService {
         validateStockAvailability(item, inventory);
 
         return IntStream.range(0, item.quantity())
-                .mapToObj(i -> createOrderLineItem(item, product,
-                        inventory.get(i)))
+                .mapToObj(i -> createOrderLineItem(product, inventory.get(i)))
                 .toList();
     }
 
@@ -92,11 +103,15 @@ public class OrderService {
         }
     }
 
-    private OrderLineItem createOrderLineItem(OrderLineItemDto itemDto,
-                                              Product product,
+    private OrderLineItem createOrderLineItem(Product product,
                                               InventoryItem inventoryItem) {
         updateInventoryItemStatus(inventoryItem);
-        return orderMapper.mapToOrderLineItem(itemDto, product, inventoryItem);
+        return OrderLineItem.builder()
+                .product(product)
+                .size(inventoryItem.getSize())
+                .inventoryItem(inventoryItem)
+                .isReturned(false)
+                .build();
     }
 
     @Transactional
@@ -110,27 +125,6 @@ public class OrderService {
         order.setItems(items);
     }
 
-    private OrderSummary getOrderSummary(Order order) {
-        double orderPrice = calculateOrderPrice(order.getItems());
-        return buildOrderSummary(order, orderPrice);
-    }
-
-    private double calculateOrderPrice(List<OrderLineItem> orderLineItems) {
-        return orderLineItems.stream()
-                .mapToDouble(item -> item.getProduct().getPrice())
-                .sum();
-    }
-
-    private OrderSummary buildOrderSummary(Order order, double orderPrice) {
-        return OrderSummary.builder()
-                .id(order.getId())
-                .date(order.getDate())
-                .shippingAddress(order.getShippingAddress())
-                .items(order.getItems().size())
-                .price(orderPrice)
-                .build();
-    }
-
     /**
      * Gets the orders for the customer with the given ID.
      * @param customerId The customer ID.
@@ -140,7 +134,24 @@ public class OrderService {
         List<Order> customerOrders = orderRepository.findAllByCustomerId(
                 customerId);
         return customerOrders.stream()
-                .map(this::getOrderSummary)
+                .map(orderMapper::mapToSummary)
                 .toList();
+    }
+
+    /**
+     * Gets the details of the order with the given ID.
+     * @param id The ID of the order.
+     * @return The order details.
+     */
+    public OrderResponse getOrderDetails(Long id) {
+        Order order = getOrderById(id);
+        log.info("Order (ID: {}) retrieved from database", order.getId());
+        return orderMapper.mapToResponse(order);
+    }
+
+    private Order getOrderById(Long id) {
+        return orderRepository.findById(id).orElseThrow(() ->
+            new BadRequestException("Order with ID " + id + " does not exist")
+        );
     }
 }

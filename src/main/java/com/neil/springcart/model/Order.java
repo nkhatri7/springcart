@@ -42,4 +42,10 @@ public class Order {
     private Address shippingAddress;
     @Column(nullable = false)
     private boolean isCancelled;
+
+    public double getTotalAmount() {
+        return this.items.stream()
+                .mapToDouble(item -> item.getProduct().getPrice())
+                .sum();
+    }
 }

@@ -121,6 +121,23 @@ class OrderControllerTest {
                 .andExpect(jsonPath("$.length()").value(3));
     }
 
+    @Test
+    void getOrderDetailsReturnsOrderDetailsIfOrderExists() throws Exception {
+        // Given a customer has made an order
+        Customer customer = saveCustomer();
+        Product product = saveProduct();
+        saveInventory(product, ProductSize.S, 3);
+        Order order = orderRepository.save(buildOrder(customer));
+
+        // When a request is made to get the order
+        HttpHeaders headers = HttpUtil.generateAuthorizationHeader(
+                getCustomerToken(customer));
+        String requestUrl = "/api/v1/orders/" + order.getId();
+        mockMvc.perform(MockMvcRequestBuilders.get(requestUrl).headers(headers))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1));
+    }
+
     private Customer saveCustomer() {
         return customerRepository.save(buildCustomer());
     }

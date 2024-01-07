@@ -2,10 +2,12 @@ package com.neil.springcart.service;
 
 import com.neil.springcart.dto.CreateOrderRequest;
 import com.neil.springcart.dto.OrderLineItemDto;
+import com.neil.springcart.dto.OrderResponse;
 import com.neil.springcart.dto.OrderSummary;
 import com.neil.springcart.exception.BadRequestException;
 import com.neil.springcart.model.*;
 import com.neil.springcart.repository.*;
+import com.neil.springcart.util.mapper.OrderLineItemMapper;
 import com.neil.springcart.util.mapper.OrderMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,7 +49,8 @@ class OrderServiceTest {
 
     @BeforeEach
     void setUp() {
-        OrderMapper orderMapper = new OrderMapper();
+        OrderLineItemMapper orderLineItemMapper = new OrderLineItemMapper();
+        OrderMapper orderMapper = new OrderMapper(orderLineItemMapper);
         orderService = new OrderService(orderRepository,
                 orderLineItemRepository, customerRepository, productRepository,
                 inventoryItemRepository, orderMapper);
@@ -182,6 +185,31 @@ class OrderServiceTest {
                 customerId);
         // Then 2 orders are returned
         assertThat(customerOrders.size()).isEqualTo(2);
+    }
+
+    @Test
+    void getOrderDetailsThrowsBadRequestExceptionIfOrderIdIsInvalid() {
+        // Given an order with ID 1 doesn't exist
+        Long orderId = 1L;
+        given(orderRepository.findById(orderId)).willReturn(Optional.empty());
+        // When getOrderDetails() is called
+        // Then a BadRequestException is thrown
+        assertThrows(BadRequestException.class, () -> {
+            orderService.getOrderDetails(orderId);
+        });
+    }
+
+    @Test
+    void getOrderDetailsShouldReturnTheOrderDetailsIfItExists() {
+        // Given an order with ID 1 exists
+        Order order = buildOrder();
+        given(orderRepository.findById(order.getId()))
+                .willReturn(Optional.of(order));
+        // When getOrderDetails() is called
+        OrderResponse orderResponse = orderService.getOrderDetails(
+                order.getId());
+        // Then the order details are returned
+        assertThat(orderResponse).isNotNull();
     }
 
     private CreateOrderRequest buildCreateOrderRequest(

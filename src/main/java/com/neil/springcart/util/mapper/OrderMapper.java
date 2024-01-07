@@ -1,32 +1,34 @@
 package com.neil.springcart.util.mapper;
 
-import com.neil.springcart.dto.OrderLineItemDto;
+import com.neil.springcart.dto.OrderResponse;
 import com.neil.springcart.dto.OrderSummary;
 import com.neil.springcart.model.*;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Date;
-
 @Component
+@AllArgsConstructor
 public class OrderMapper {
-    public Order mapToOrder(Customer customer, Address address) {
-        return Order.builder()
-                .customer(customer)
-                .items(new ArrayList<>())
-                .date(new Date())
-                .shippingAddress(address)
-                .isCancelled(false)
+    private OrderLineItemMapper orderLineItemMapper;
+
+    public OrderSummary mapToSummary(Order order) {
+        return OrderSummary.builder()
+                .id(order.getId())
+                .date(order.getDate())
+                .shippingAddress(order.getShippingAddress())
+                .items(order.getItems().size())
+                .price(order.getTotalAmount())
                 .build();
     }
 
-    public OrderLineItem mapToOrderLineItem(OrderLineItemDto itemDto,
-            Product product, InventoryItem inventoryItem) {
-        return OrderLineItem.builder()
-                .product(product)
-                .size(itemDto.size())
-                .inventoryItem(inventoryItem)
-                .isReturned(false)
+    public OrderResponse mapToResponse(Order order) {
+        return OrderResponse.builder()
+                .id(order.getId())
+                .date(order.getDate())
+                .shippingAddress(order.getShippingAddress())
+                .price(order.getTotalAmount())
+                .items(orderLineItemMapper.mapOrderLineItemsToResponseList(
+                        order.getItems()))
                 .build();
     }
 }
