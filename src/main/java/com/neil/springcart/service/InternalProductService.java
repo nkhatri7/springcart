@@ -32,10 +32,10 @@ public class InternalProductService {
      * @return The created product.
      */
     public Product createProduct(NewProductRequest request) {
-        Product product = newProductMapper.mapToProduct(request);
-        productRepository.save(product);
-        saveProductInventory(product, request.inventory());
-        return product;
+        Product newProduct = newProductMapper.mapToProduct(request);
+        productRepository.save(newProduct);
+        saveProductInventory(newProduct, request.inventory());
+        return newProduct;
     }
 
     /**
@@ -49,12 +49,6 @@ public class InternalProductService {
         saveProductInventory(product, request.inventory());
     }
 
-    /**
-     * Creates inventory items in the database for the given product.
-     * @param product The product the inventory is for.
-     * @param inventoryDtoList The incoming inventory data (i.e. size and
-     *                         additional stock).
-     */
     private void saveProductInventory(Product product,
                                       List<InventoryDto> inventoryDtoList) {
         List<InventoryItem> inventory = inventoryMapper.mapToInventory(product,
@@ -62,27 +56,12 @@ public class InternalProductService {
         inventoryItemRepository.saveAll(inventory);
     }
 
-    /**
-     * Gets the product with the given ID from the database if one exists.
-     * @param id The ID of the product.
-     * @return The product data for the product with the given ID if it exists.
-     * @throws NotFoundException If a product with the given ID doesn't exist.
-     */
     private Product getProduct(Long id) {
         return productRepository.findById(id).orElseThrow(() ->
             new NotFoundException("Product with ID " + id + " does not exist")
         );
     }
 
-    /**
-     * Gets the product with the given ID from the database if it exists and if
-     * it's active.
-     * @param id The ID of the product.
-     * @return The product data for the product with the given ID if it exists
-     * and is active.
-     * @throws BadRequestException If the product with the given ID isn't
-     * active.
-     */
     private Product getActiveProduct(Long id) {
         Product product = getProduct(id);
         if (!product.isActive()) {
@@ -111,14 +90,6 @@ public class InternalProductService {
         }
     }
 
-    /**
-     * Checks if a property can be updated by checking if the new value is not
-     * equal to the previous value.
-     * @param oldValue The old value of the property.
-     * @param newValue The new value of the property.
-     * @return {@code true} if the value can be updated, {@code false}
-     * otherwise.
-     */
     private boolean canUpdateValue(String oldValue, String newValue) {
         return !newValue.trim().isEmpty()
                 && !oldValue.trim().equals(newValue.trim());

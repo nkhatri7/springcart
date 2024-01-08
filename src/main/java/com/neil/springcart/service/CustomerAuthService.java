@@ -9,25 +9,21 @@ import com.neil.springcart.dto.RegisterRequest;
 import com.neil.springcart.model.Customer;
 import com.neil.springcart.util.PasswordManager;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Optional;
 
 @Service
 @AllArgsConstructor
-@Slf4j
 public class CustomerAuthService {
     private final CustomerRepository customerRepository;
     private final CartRepository cartRepository;
     private final PasswordManager passwordManager;
+
     /**
      * Creates a customer in the database with the data from the request.
      * @param request The body of a request from the /register route.
      * @return A Customer object with an ID and data from the request.
-     * @throws BadRequestException If an account with the email from the request
-     * already exists.
      */
     public Customer createCustomer(RegisterRequest request) {
         if (isEmailTaken(request.email().trim())) {
@@ -41,14 +37,8 @@ public class CustomerAuthService {
         return customer;
     }
 
-    /**
-     * Checks if a Customer exists with that email.
-     * @param email The email of a customer.
-     * @return {@code true} if the email is taken, {@code false} if it is not.
-     */
     private boolean isEmailTaken(String email) {
-        Optional<Customer> existingCustomer = getCustomerByEmail(email);
-        return existingCustomer.isPresent();
+        return customerRepository.findByEmail(email).isPresent();
     }
 
     private Customer buildCustomer(RegisterRequest request, String password) {
@@ -59,20 +49,11 @@ public class CustomerAuthService {
                 .build();
     }
 
-    /**
-     * Creates a cart in the database for the given customer.
-     * @param customer The customer the cart is to be created for.
-     */
     private void createCustomerCart(Customer customer) {
         Cart cart = buildCustomerCart(customer);
         cartRepository.save(cart);
     }
 
-    /**
-     * Builds a Cart POJO for the given customer.
-     * @param customer The customer the cart is to be built for.
-     * @return A Cart object linked to the given customer.
-     */
     private Cart buildCustomerCart(Customer customer) {
         return Cart.builder()
                 .customer(customer)
@@ -84,15 +65,11 @@ public class CustomerAuthService {
      * Checks if the email and password of the customer are valid.
      * @param request The LoginRequest containing the user email and password.
      * @return The customer data if the login details are valid.
-     * @throws BadRequestException If an account with the email from the request
-     * doesn't exist or if the password is invalid.
      */
     public Customer authenticateCustomer(LoginRequest request) {
         // Check if customer with email exists
         String email = request.email().trim();
-        Customer customer = getCustomerByEmail(email).orElseThrow(() ->
-            new BadRequestException("Account with this email doesn't exist")
-        );
+        Customer customer = getCustomerByEmail(email);
         // Check if password is valid
         String password = request.password().trim();
         String customerPassword = customer.getPassword();
@@ -102,12 +79,9 @@ public class CustomerAuthService {
         return customer;
     }
 
-    /**
-     * Searches the database for a customer with the given email.
-     * @param email The email of a customer.
-     * @return A Customer if one exists with that email, otherwise it is empty.
-     */
-    private Optional<Customer> getCustomerByEmail(String email) {
-        return customerRepository.findByEmail(email);
+    private Customer getCustomerByEmail(String email) {
+        return customerRepository.findByEmail(email).orElseThrow(() ->
+            new BadRequestException("Account with this email doesn't exist")
+        );
     }
 }
